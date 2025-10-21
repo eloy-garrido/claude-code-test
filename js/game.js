@@ -6,13 +6,17 @@ import { CONFIG } from './config.js';
 import { RankingManager } from './ranking.js';
 import { UIManager } from './ui.js';
 import { SoundManager } from './sound.js';
+import { Renderer3D } from './renderer3d.js';
 
 export class SnakeGame {
     constructor() {
         this.rankingManager = new RankingManager();
         this.ui = new UIManager(this.rankingManager);
         this.soundManager = new SoundManager();
-        this.ctx = this.ui.getContext();
+
+        // Usar renderer 3D en lugar de contexto 2D
+        const canvas = document.getElementById('gameCanvas');
+        this.renderer3d = new Renderer3D(canvas);
 
         this.initializeState();
         this.setupEventListeners();
@@ -94,170 +98,10 @@ export class SnakeGame {
     }
 
     /**
-     * Dibuja el juego en el canvas
+     * Dibuja el juego usando el renderer 3D
      */
     draw() {
-        this.drawBackground();
-        this.drawGrid();
-        this.drawFood();
-        this.drawSnake();
-    }
-
-    /**
-     * Dibuja el fondo del canvas
-     */
-    drawBackground() {
-        this.ctx.fillStyle = CONFIG.COLORS.background;
-        this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
-    }
-
-    /**
-     * Dibuja la cuadrícula
-     */
-    drawGrid() {
-        this.ctx.strokeStyle = CONFIG.COLORS.grid;
-        this.ctx.lineWidth = 1;
-
-        for (let i = 0; i < CONFIG.TILE_COUNT; i++) {
-            // Líneas verticales
-            this.ctx.beginPath();
-            this.ctx.moveTo(i * CONFIG.GRID_SIZE, 0);
-            this.ctx.lineTo(i * CONFIG.GRID_SIZE, CONFIG.CANVAS_HEIGHT);
-            this.ctx.stroke();
-
-            // Líneas horizontales
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, i * CONFIG.GRID_SIZE);
-            this.ctx.lineTo(CONFIG.CANVAS_WIDTH, i * CONFIG.GRID_SIZE);
-            this.ctx.stroke();
-        }
-    }
-
-    /**
-     * Dibuja la comida (manzana)
-     */
-    drawFood() {
-        const x = this.state.food.x * CONFIG.GRID_SIZE;
-        const y = this.state.food.y * CONFIG.GRID_SIZE;
-        const centerX = x + CONFIG.GRID_SIZE / 2;
-        const centerY = y + CONFIG.GRID_SIZE / 2;
-
-        // Manzana con gradiente radial
-        const gradient = this.ctx.createRadialGradient(
-            centerX, centerY, 0,
-            centerX, centerY, CONFIG.SIZES.foodRadius
-        );
-        gradient.addColorStop(0, CONFIG.COLORS.food.start);
-        gradient.addColorStop(1, CONFIG.COLORS.food.end);
-
-        this.ctx.fillStyle = gradient;
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, CONFIG.SIZES.foodRadius, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Hoja de la manzana
-        this.ctx.fillStyle = CONFIG.COLORS.foodLeaf;
-        this.ctx.beginPath();
-        this.ctx.ellipse(
-            centerX + 4, y + 4,
-            CONFIG.SIZES.leafWidth,
-            CONFIG.SIZES.leafHeight,
-            Math.PI / 4, 0, Math.PI * 2
-        );
-        this.ctx.fill();
-    }
-
-    /**
-     * Dibuja la serpiente
-     */
-    drawSnake() {
-        this.state.snake.forEach((segment, index) => {
-            const x = segment.x * CONFIG.GRID_SIZE;
-            const y = segment.y * CONFIG.GRID_SIZE;
-
-            if (index === 0) {
-                this.drawSnakeHead(x, y);
-            } else {
-                this.drawSnakeBody(x, y, index);
-            }
-        });
-    }
-
-    /**
-     * Dibuja la cabeza de la serpiente
-     * @param {number} x - Coordenada X
-     * @param {number} y - Coordenada Y
-     */
-    drawSnakeHead(x, y) {
-        // Gradiente de la cabeza
-        const gradient = this.ctx.createLinearGradient(
-            x, y,
-            x + CONFIG.GRID_SIZE,
-            y + CONFIG.GRID_SIZE
-        );
-        gradient.addColorStop(0, CONFIG.COLORS.snakeHead.start);
-        gradient.addColorStop(1, CONFIG.COLORS.snakeHead.end);
-
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(x + 1, y + 1, CONFIG.GRID_SIZE - 2, CONFIG.GRID_SIZE - 2);
-
-        // Dibujar ojos según la dirección
-        this.drawEyes(x, y);
-
-        // Borde brillante
-        this.ctx.strokeStyle = CONFIG.COLORS.border;
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(x + 2, y + 2, CONFIG.GRID_SIZE - 4, CONFIG.GRID_SIZE - 4);
-    }
-
-    /**
-     * Dibuja los ojos de la serpiente
-     * @param {number} x - Coordenada X
-     * @param {number} y - Coordenada Y
-     */
-    drawEyes(x, y) {
-        this.ctx.fillStyle = CONFIG.COLORS.eyes;
-        const eyeSize = CONFIG.SIZES.eyeSize;
-
-        if (this.state.dx === 1) { // Derecha
-            this.ctx.fillRect(x + CONFIG.GRID_SIZE - 8, y + 4, eyeSize, eyeSize);
-            this.ctx.fillRect(x + CONFIG.GRID_SIZE - 8, y + CONFIG.GRID_SIZE - 8, eyeSize, eyeSize);
-        } else if (this.state.dx === -1) { // Izquierda
-            this.ctx.fillRect(x + 4, y + 4, eyeSize, eyeSize);
-            this.ctx.fillRect(x + 4, y + CONFIG.GRID_SIZE - 8, eyeSize, eyeSize);
-        } else if (this.state.dy === -1) { // Arriba
-            this.ctx.fillRect(x + 4, y + 4, eyeSize, eyeSize);
-            this.ctx.fillRect(x + CONFIG.GRID_SIZE - 8, y + 4, eyeSize, eyeSize);
-        } else { // Abajo
-            this.ctx.fillRect(x + 4, y + CONFIG.GRID_SIZE - 8, eyeSize, eyeSize);
-            this.ctx.fillRect(x + CONFIG.GRID_SIZE - 8, y + CONFIG.GRID_SIZE - 8, eyeSize, eyeSize);
-        }
-    }
-
-    /**
-     * Dibuja un segmento del cuerpo de la serpiente
-     * @param {number} x - Coordenada X
-     * @param {number} y - Coordenada Y
-     * @param {number} index - Índice del segmento
-     */
-    drawSnakeBody(x, y, index) {
-        const gradient = this.ctx.createLinearGradient(
-            x, y,
-            x + CONFIG.GRID_SIZE,
-            y + CONFIG.GRID_SIZE
-        );
-
-        const intensity = 1 - (index / this.state.snake.length) * 0.3;
-        gradient.addColorStop(0, CONFIG.COLORS.snakeBody.start.replace('1)', `${intensity})`));
-        gradient.addColorStop(1, CONFIG.COLORS.snakeBody.end.replace('1)', `${intensity})`));
-
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(x + 2, y + 2, CONFIG.GRID_SIZE - 4, CONFIG.GRID_SIZE - 4);
-
-        // Borde brillante
-        this.ctx.strokeStyle = CONFIG.COLORS.border;
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(x + 2, y + 2, CONFIG.GRID_SIZE - 4, CONFIG.GRID_SIZE - 4);
+        this.renderer3d.draw(this.state);
     }
 
     /**
