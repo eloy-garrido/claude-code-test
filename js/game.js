@@ -476,6 +476,12 @@ export class SnakeGame {
 
         // Controles del teclado (Flechas y WASD)
         document.addEventListener('keydown', (e) => {
+            // No capturar teclas si el usuario está escribiendo en un input o textarea
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+
             switch (e.key) {
                 case 'ArrowUp':
                 case 'w':
