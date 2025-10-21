@@ -26,22 +26,22 @@ export class Renderer3D {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(CONFIG.COLORS.background);
 
-        // Configurar la cámara
+        // Configurar cámara ortográfica para vista perfecta top-down (desde arriba)
+        const viewSize = CONFIG.TILE_COUNT;
         const aspect = CONFIG.CANVAS_WIDTH / CONFIG.CANVAS_HEIGHT;
-        this.camera = new THREE.PerspectiveCamera(
-            60,  // FOV
-            aspect,
-            0.1,
-            1000
+
+        this.camera = new THREE.OrthographicCamera(
+            -viewSize / 2 * aspect,  // left
+            viewSize / 2 * aspect,   // right
+            viewSize / 2,            // top
+            -viewSize / 2,           // bottom
+            0.1,                     // near
+            100                      // far
         );
 
-        // Posicionar la cámara para vista isométrica superior
+        // Posicionar la cámara directamente arriba del centro mirando hacia abajo
         const gridCenter = CONFIG.TILE_COUNT / 2;
-        this.camera.position.set(
-            gridCenter * 1.2,
-            gridCenter * 1.8,
-            gridCenter * 1.5
-        );
+        this.camera.position.set(gridCenter, 20, gridCenter);
         this.camera.lookAt(gridCenter, 0, gridCenter);
 
         // Crear el renderer
@@ -64,32 +64,32 @@ export class Renderer3D {
     }
 
     /**
-     * Configura las luces de la escena
+     * Configura las luces de la escena (optimizadas para vista top-down)
      */
     setupLights() {
-        // Luz ambiental suave
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        // Luz ambiental más fuerte para vista desde arriba
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         this.scene.add(ambientLight);
 
-        // Luz direccional principal
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 20, 10);
+        // Luz direccional desde arriba (simula luz cenital)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(0, 20, 0);
         directionalLight.castShadow = true;
-        directionalLight.shadow.camera.left = -30;
-        directionalLight.shadow.camera.right = 30;
-        directionalLight.shadow.camera.top = 30;
-        directionalLight.shadow.camera.bottom = -30;
+        directionalLight.shadow.camera.left = -CONFIG.TILE_COUNT;
+        directionalLight.shadow.camera.right = CONFIG.TILE_COUNT;
+        directionalLight.shadow.camera.top = CONFIG.TILE_COUNT;
+        directionalLight.shadow.camera.bottom = -CONFIG.TILE_COUNT;
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         this.scene.add(directionalLight);
 
-        // Luz de relleno
-        const fillLight = new THREE.DirectionalLight(0x667eea, 0.3);
-        fillLight.position.set(-10, 10, -10);
+        // Luz de relleno lateral suave para dar volumen
+        const fillLight = new THREE.DirectionalLight(0x667eea, 0.2);
+        fillLight.position.set(5, 10, 5);
         this.scene.add(fillLight);
 
         // Luz puntual sobre la comida (se moverá con la comida)
-        this.foodLight = new THREE.PointLight(0xff6b6b, 0.8, 10);
+        this.foodLight = new THREE.PointLight(0xff6b6b, 1.0, 8);
         this.foodLight.position.set(0, 3, 0);
         this.scene.add(this.foodLight);
     }
@@ -145,8 +145,10 @@ export class Renderer3D {
         snake.forEach((segment, index) => {
             const isHead = index === 0;
 
-            // Crear geometría del segmento (cubo redondeado)
-            const geometry = new THREE.BoxGeometry(0.9, 0.6, 0.9);
+            // Crear geometría del segmento (cubo 3D con buena altura)
+            const size = 0.85;  // tamaño en X y Z
+            const height = 1.5; // altura en Y para efecto 3D
+            const geometry = new THREE.BoxGeometry(size, height, size);
 
             // Material con color degradado
             const intensity = 1 - (index / snake.length) * 0.3;
@@ -160,18 +162,18 @@ export class Renderer3D {
 
             const material = new THREE.MeshStandardMaterial({
                 color: color,
-                roughness: 0.4,
-                metalness: 0.6,
+                roughness: 0.5,
+                metalness: 0.4,
                 emissive: color,
-                emissiveIntensity: 0.2
+                emissiveIntensity: 0.15
             });
 
             const mesh = new THREE.Mesh(geometry, material);
 
-            // Posicionar el segmento
+            // Posicionar el segmento (centrado en X,Z y elevado en Y)
             mesh.position.set(
                 segment.x + 0.5,
-                0.3,
+                height / 2,  // elevarlo para que esté sobre el plano
                 segment.y + 0.5
             );
 
@@ -195,28 +197,28 @@ export class Renderer3D {
      * @param {number} dy - Dirección Y
      */
     drawEyes(headMesh, dx, dy) {
-        const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+        const eyeGeometry = new THREE.SphereGeometry(0.12, 10, 10);
         const eyeMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             emissive: 0xffffff,
-            emissiveIntensity: 0.5
+            emissiveIntensity: 0.6
         });
 
-        // Posición de los ojos según la dirección
+        // Posición de los ojos según la dirección (ajustadas para cubo más alto)
         let eye1Pos, eye2Pos;
 
         if (dx === 1) { // Derecha
-            eye1Pos = { x: 0.4, y: 0.15, z: 0.2 };
-            eye2Pos = { x: 0.4, y: 0.15, z: -0.2 };
+            eye1Pos = { x: 0.35, y: 0.3, z: 0.2 };
+            eye2Pos = { x: 0.35, y: 0.3, z: -0.2 };
         } else if (dx === -1) { // Izquierda
-            eye1Pos = { x: -0.4, y: 0.15, z: 0.2 };
-            eye2Pos = { x: -0.4, y: 0.15, z: -0.2 };
+            eye1Pos = { x: -0.35, y: 0.3, z: 0.2 };
+            eye2Pos = { x: -0.35, y: 0.3, z: -0.2 };
         } else if (dy === -1) { // Arriba
-            eye1Pos = { x: 0.2, y: 0.15, z: -0.4 };
-            eye2Pos = { x: -0.2, y: 0.15, z: -0.4 };
+            eye1Pos = { x: 0.2, y: 0.3, z: -0.35 };
+            eye2Pos = { x: -0.2, y: 0.3, z: -0.35 };
         } else { // Abajo
-            eye1Pos = { x: 0.2, y: 0.15, z: 0.4 };
-            eye2Pos = { x: -0.2, y: 0.15, z: 0.4 };
+            eye1Pos = { x: 0.2, y: 0.3, z: 0.35 };
+            eye2Pos = { x: -0.2, y: 0.3, z: 0.35 };
         }
 
         const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
@@ -245,41 +247,41 @@ export class Renderer3D {
         // Crear grupo para la manzana
         const appleGroup = new THREE.Group();
 
-        // Cuerpo de la manzana (esfera)
-        const appleGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+        // Cuerpo de la manzana (esfera más grande)
+        const appleGeometry = new THREE.SphereGeometry(0.55, 20, 20);
         const appleMaterial = new THREE.MeshStandardMaterial({
             color: new THREE.Color(CONFIG.COLORS.food.start),
             roughness: 0.3,
-            metalness: 0.4,
+            metalness: 0.3,
             emissive: new THREE.Color(CONFIG.COLORS.food.end),
-            emissiveIntensity: 0.3
+            emissiveIntensity: 0.4
         });
         const apple = new THREE.Mesh(appleGeometry, appleMaterial);
         apple.castShadow = true;
         apple.receiveShadow = true;
-        apple.position.y = 0.4;
+        apple.position.y = 0.55;
         appleGroup.add(apple);
 
         // Tallo de la manzana
-        const stemGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8);
+        const stemGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.25, 8);
         const stemMaterial = new THREE.MeshStandardMaterial({
             color: 0x4a3222,
             roughness: 0.8
         });
         const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-        stem.position.y = 0.85;
+        stem.position.y = 1.15;
         stem.castShadow = true;
         appleGroup.add(stem);
 
         // Hoja
-        const leafGeometry = new THREE.CircleGeometry(0.15, 8);
+        const leafGeometry = new THREE.CircleGeometry(0.2, 10);
         const leafMaterial = new THREE.MeshStandardMaterial({
             color: new THREE.Color(CONFIG.COLORS.foodLeaf),
             roughness: 0.6,
             side: THREE.DoubleSide
         });
         const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-        leaf.position.set(0.1, 0.95, 0);
+        leaf.position.set(0.12, 1.28, 0);
         leaf.rotation.x = Math.PI / 4;
         leaf.rotation.z = Math.PI / 6;
         leaf.castShadow = true;
