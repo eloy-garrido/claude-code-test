@@ -5,6 +5,7 @@ Un juego clásico de Snake con gráficos modernos, sistema de vidas, puntaje y r
 ## Características
 
 - **Gráficos atractivos**: Diseño moderno con gradientes, sombras y animaciones
+- **Efectos de sonido**: Audio inmersivo con Tone.js para cada acción del juego
 - **Sistema de 3 vidas**: Tienes 3 oportunidades antes de que termine el juego
 - **Sistema de puntaje**: Gana 10 puntos por cada manzana que comas
 - **Ranking persistente**: Los mejores puntajes se guardan y se muestran en un top 10
@@ -24,7 +25,8 @@ snake-game/
 │   ├── game.js            # Lógica principal del juego
 │   ├── config.js          # Configuración y constantes
 │   ├── ranking.js         # Sistema de ranking y localStorage
-│   └── ui.js              # Gestión de interfaz de usuario
+│   ├── ui.js              # Gestión de interfaz de usuario
+│   └── sound.js           # Sistema de efectos de sonido
 └── README.md              # Documentación
 ```
 
@@ -73,6 +75,31 @@ Clase `UIManager` que maneja:
 - Visualización del ranking
 - Interacciones de UI
 
+#### `js/sound.js`
+Clase `SoundManager` para efectos de sonido:
+- Síntesis de audio con Tone.js
+- Sonido al comer manzanas
+- Sonido al perder vidas
+- Sonido de game over
+- Sonido de inicio del juego
+- Sonido al aumentar velocidad
+- Control de silencio/activación
+
+## Efectos de Sonido
+
+El juego incluye un sistema completo de audio usando **Tone.js**:
+
+- **🍎 Comer manzana**: Secuencia ascendente alegre (C5 → E5)
+- **💔 Perder vida**: Secuencia descendente (E4 → C4 → A3)
+- **☠️ Game Over**: Melodía dramática de 5 notas
+- **🎮 Inicio**: Arpeggio energético ascendente (C4 → E4 → G4)
+- **⚡ Aumento de velocidad**: Arpeggio rápido hacia C6
+
+### Control de Audio
+- Botón **🔊 Sonido** para activar/desactivar efectos
+- El audio se inicializa automáticamente al empezar el juego
+- Cumple con las políticas de autoplay de navegadores modernos
+
 ## Cómo jugar
 
 1. Abre el archivo `index.html` en tu navegador web
@@ -103,6 +130,7 @@ El juego guarda automáticamente los 10 mejores puntajes en el almacenamiento lo
 - **HTML5 Canvas**: Para renderizado de gráficos 2D
 - **CSS3**: Diseño moderno con gradientes, flexbox y animaciones
 - **JavaScript ES6+**: Módulos, clases, arrow functions
+- **Tone.js**: Síntesis de audio y efectos de sonido (CDN v14.8.49)
 - **LocalStorage API**: Persistencia de datos del ranking
 
 ## Instalación

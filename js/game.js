@@ -5,11 +5,13 @@
 import { CONFIG } from './config.js';
 import { RankingManager } from './ranking.js';
 import { UIManager } from './ui.js';
+import { SoundManager } from './sound.js';
 
 export class SnakeGame {
     constructor() {
         this.rankingManager = new RankingManager();
         this.ui = new UIManager(this.rankingManager);
+        this.soundManager = new SoundManager();
         this.ctx = this.ui.getContext();
 
         this.initializeState();
@@ -305,11 +307,16 @@ export class SnakeGame {
         this.placeFood();
         this.updateUI();
 
+        // Reproducir sonido de comer
+        this.soundManager.playEatSound();
+
         // Aumentar velocidad gradualmente
         if (this.state.score % CONFIG.SCORE_THRESHOLD_FOR_SPEED === 0 &&
             this.state.speed > CONFIG.MIN_SPEED) {
             this.state.speed -= CONFIG.SPEED_INCREMENT;
             this.restartGameLoop();
+            // Reproducir sonido de aumento de velocidad
+            this.soundManager.playSpeedUpSound();
         }
     }
 
@@ -331,6 +338,8 @@ export class SnakeGame {
         if (this.state.lives <= 0) {
             this.gameOver();
         } else {
+            // Reproducir sonido de perder vida
+            this.soundManager.playLoseLifeSound();
             this.resetSnakePosition();
         }
     }
@@ -342,6 +351,9 @@ export class SnakeGame {
         this.state.isRunning = false;
         clearInterval(this.state.gameLoop);
 
+        // Reproducir sonido de game over
+        this.soundManager.playGameOverSound();
+
         // Guardar puntaje
         this.rankingManager.saveScore(this.state.playerName, this.state.score);
 
@@ -352,10 +364,15 @@ export class SnakeGame {
     /**
      * Inicia el juego
      */
-    start() {
+    async start() {
         if (this.state.isRunning) {
             this.togglePause();
             return;
+        }
+
+        // Inicializar audio si no está inicializado (requiere interacción del usuario)
+        if (!this.soundManager.initialized) {
+            await this.soundManager.init();
         }
 
         this.resetGame();
@@ -367,6 +384,9 @@ export class SnakeGame {
 
         this.ui.showPauseButton();
         this.draw();
+
+        // Reproducir sonido de inicio
+        this.soundManager.playStartSound();
     }
 
     /**
@@ -434,6 +454,12 @@ export class SnakeGame {
             this.ui.showStartButton();
             this.resetGame();
             this.draw();
+        });
+
+        // Botón de mute/unmute
+        this.ui.elements.muteBtn.addEventListener('click', () => {
+            const isMuted = this.soundManager.toggleMute();
+            this.ui.elements.muteBtn.textContent = isMuted ? '🔇 Silencio' : '🔊 Sonido';
         });
 
         // Controles del teclado

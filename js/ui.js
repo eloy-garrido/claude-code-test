@@ -20,6 +20,7 @@ export class UIManager {
             playerNameDisplay: document.getElementById('playerName'),
             startBtn: document.getElementById('startBtn'),
             pauseBtn: document.getElementById('pauseBtn'),
+            muteBtn: document.getElementById('muteBtn'),
             nameModal: document.getElementById('nameModal'),
             gameOverModal: document.getElementById('gameOverModal'),
             playerNameInput: document.getElementById('playerNameInput'),
