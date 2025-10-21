@@ -144,11 +144,28 @@ export class Renderer3D {
 
         snake.forEach((segment, index) => {
             const isHead = index === 0;
+            const isTail = index === snake.length - 1;
 
-            // Crear geometría del segmento (cubo 3D con buena altura)
-            const size = 0.85;  // tamaño en X y Z
+            // Tamaños para crear continuidad
+            const size = 0.95;  // tamaño en X y Z (más grande para solapar)
             const height = 1.5; // altura en Y para efecto 3D
-            const geometry = new THREE.BoxGeometry(size, height, size);
+
+            // Crear geometría del segmento con bordes redondeados
+            const geometry = new THREE.BoxGeometry(size, height, size, 1, 1, 1);
+
+            // Redondear esquinas para efecto más orgánico
+            const positions = geometry.attributes.position;
+            for (let i = 0; i < positions.count; i++) {
+                const y = positions.getY(i);
+                if (Math.abs(y) > height / 2 - 0.1) {
+                    const x = positions.getX(i);
+                    const z = positions.getZ(i);
+                    const factor = 0.85;
+                    positions.setX(i, x * factor);
+                    positions.setZ(i, z * factor);
+                }
+            }
+            positions.needsUpdate = true;
 
             // Material con color degradado
             const intensity = 1 - (index / snake.length) * 0.3;
@@ -170,10 +187,10 @@ export class Renderer3D {
 
             const mesh = new THREE.Mesh(geometry, material);
 
-            // Posicionar el segmento (centrado en X,Z y elevado en Y)
+            // Posicionar el segmento
             mesh.position.set(
                 segment.x + 0.5,
-                height / 2,  // elevarlo para que esté sobre el plano
+                height / 2,
                 segment.y + 0.5
             );
 
@@ -183,11 +200,64 @@ export class Renderer3D {
             this.scene.add(mesh);
             this.snakeMeshes.push(mesh);
 
+            // Agregar conectores entre segmentos para continuidad visual
+            if (index < snake.length - 1) {
+                const nextSegment = snake[index + 1];
+                const connector = this.createConnector(
+                    segment,
+                    nextSegment,
+                    height,
+                    color,
+                    intensity
+                );
+                if (connector) {
+                    this.scene.add(connector);
+                    this.snakeMeshes.push(connector);
+                }
+            }
+
             // Agregar ojos si es la cabeza
             if (isHead) {
                 this.drawEyes(mesh, dx, dy);
             }
         });
+    }
+
+    /**
+     * Crea un conector entre dos segmentos para continuidad visual
+     */
+    createConnector(segment1, segment2, height, color, intensity) {
+        // Calcular dirección entre segmentos
+        const dx = segment2.x - segment1.x;
+        const dz = segment2.y - segment1.y;
+
+        // Solo crear conector si los segmentos son adyacentes
+        if (Math.abs(dx) > 1 || Math.abs(dz) > 1) return null;
+
+        // Geometría del conector (más pequeña para llenar el gap)
+        const connectorGeometry = new THREE.BoxGeometry(0.95, height, 0.95);
+
+        const connectorMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(CONFIG.COLORS.snakeBody.start).multiplyScalar(intensity),
+            roughness: 0.5,
+            metalness: 0.4,
+            emissive: color,
+            emissiveIntensity: 0.15
+        });
+
+        const connector = new THREE.Mesh(connectorGeometry, connectorMaterial);
+
+        // Posicionar el conector entre los dos segmentos
+        connector.position.set(
+            segment1.x + 0.5 + (dx * 0.5),
+            height / 2,
+            segment1.y + 0.5 + (dz * 0.5)
+        );
+
+        connector.castShadow = true;
+        connector.receiveShadow = true;
+
+        return connector;
     }
 
     /**
