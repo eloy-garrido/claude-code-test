@@ -405,17 +405,24 @@ export class SnakeGame {
     changeDirection(dx, dy) {
         if (!this.state.isRunning || this.state.isPaused) return;
 
-        // Prevenir movimiento en dirección opuesta
-        if (dx !== 0 && this.state.dx === -dx) return;
-        if (dy !== 0 && this.state.dy === -dy) return;
+        // Cambio horizontal (izquierda/derecha)
+        if (dx !== 0) {
+            // Solo permitir si actualmente NO se está moviendo horizontalmente
+            // (es decir, se está moviendo verticalmente)
+            if (this.state.dy !== 0) {
+                this.state.dx = dx;
+                this.state.dy = 0;
+            }
+        }
 
-        // Prevenir cambio si ya hay movimiento en ese eje
-        if (dx !== 0 && this.state.dy === 0) {
-            this.state.dx = dx;
-            this.state.dy = 0;
-        } else if (dy !== 0 && this.state.dx === 0) {
-            this.state.dx = 0;
-            this.state.dy = dy;
+        // Cambio vertical (arriba/abajo)
+        if (dy !== 0) {
+            // Solo permitir si actualmente NO se está moviendo verticalmente
+            // (es decir, se está moviendo horizontalmente)
+            if (this.state.dx !== 0) {
+                this.state.dx = 0;
+                this.state.dy = dy;
+            }
         }
     }
 
@@ -462,22 +469,30 @@ export class SnakeGame {
             this.ui.elements.muteBtn.textContent = isMuted ? '🔇 Silencio' : '🔊 Sonido';
         });
 
-        // Controles del teclado
+        // Controles del teclado (Flechas y WASD)
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowUp':
+                case 'w':
+                case 'W':
                     this.changeDirection(0, -1);
                     e.preventDefault();
                     break;
                 case 'ArrowDown':
+                case 's':
+                case 'S':
                     this.changeDirection(0, 1);
                     e.preventDefault();
                     break;
                 case 'ArrowLeft':
+                case 'a':
+                case 'A':
                     this.changeDirection(-1, 0);
                     e.preventDefault();
                     break;
                 case 'ArrowRight':
+                case 'd':
+                case 'D':
                     this.changeDirection(1, 0);
                     e.preventDefault();
                     break;

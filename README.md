@@ -105,11 +105,17 @@ El juego incluye un sistema completo de audio usando **Tone.js**:
 1. Abre el archivo `index.html` en tu navegador web
 2. Ingresa tu nombre cuando se te solicite
 3. Haz clic en "Comenzar" o "Iniciar Juego"
-4. Usa las flechas del teclado para controlar la serpiente:
-   - ⬆️ Flecha arriba: Mover hacia arriba
-   - ⬇️ Flecha abajo: Mover hacia abajo
-   - ⬅️ Flecha izquierda: Mover hacia la izquierda
-   - ➡️ Flecha derecha: Mover hacia la derecha
+4. Controla la serpiente con el teclado:
+   - **Flechas del teclado:**
+     - ⬆️ Flecha arriba: Mover hacia arriba
+     - ⬇️ Flecha abajo: Mover hacia abajo
+     - ⬅️ Flecha izquierda: Mover hacia la izquierda
+     - ➡️ Flecha derecha: Mover hacia la derecha
+   - **Teclas WASD:**
+     - W: Mover hacia arriba
+     - S: Mover hacia abajo
+     - A: Mover hacia la izquierda
+     - D: Mover hacia la derecha
 5. Come las manzanas rojas para crecer y ganar puntos
 6. Evita chocar con las paredes o con tu propio cuerpo
 
