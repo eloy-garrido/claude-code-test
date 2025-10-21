@@ -6,16 +6,21 @@ import { CONFIG } from './config.js';
 import { RankingManager } from './ranking.js';
 import { UIManager } from './ui.js';
 import { SoundManager } from './sound.js';
+import { Renderer3D } from './renderer3d.js';
 
 export class SnakeGame {
     constructor() {
         this.rankingManager = new RankingManager();
         this.ui = new UIManager(this.rankingManager);
         this.soundManager = new SoundManager();
+        this.renderer3D = new Renderer3D();
         this.ctx = this.ui.getContext();
 
         this.initializeState();
         this.setupEventListeners();
+
+        // Inicializar el renderizador 3D
+        this.renderer3D.init();
     }
 
     /**
@@ -72,6 +77,14 @@ export class SnakeGame {
             this.state.food.x = Math.floor(Math.random() * CONFIG.TILE_COUNT);
             this.state.food.y = Math.floor(Math.random() * CONFIG.TILE_COUNT);
         } while (this.isOnSnake(this.state.food.x, this.state.food.y));
+
+        // Actualizar posición de la fruta 3D
+        if (this.renderer3D.initialized) {
+            if (!this.renderer3D.foodMesh) {
+                this.renderer3D.createFoodSprite();
+            }
+            this.renderer3D.updateFoodPosition(this.state.food.x, this.state.food.y);
+        }
     }
 
     /**
@@ -101,6 +114,12 @@ export class SnakeGame {
         this.drawGrid();
         this.drawFood();
         this.drawSnake();
+
+        // Renderizar escena 3D
+        if (this.renderer3D.initialized) {
+            this.renderer3D.updateSnakePositions(this.state.snake, this.state.dx, this.state.dy);
+            this.renderer3D.render();
+        }
     }
 
     /**
@@ -504,6 +523,13 @@ export class SnakeGame {
      * Inicializa el juego
      */
     init() {
+        // Crear sprites 3D iniciales
+        if (this.renderer3D.initialized) {
+            this.renderer3D.createSnakeSprites(this.state.snake.length);
+            this.renderer3D.createFoodSprite();
+            this.renderer3D.updateFoodPosition(this.state.food.x, this.state.food.y);
+        }
+
         this.draw();
         this.ui.elements.playerNameInput.focus();
     }
