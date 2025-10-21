@@ -29,16 +29,6 @@ export class UIManager {
             finalScoreDisplay: document.getElementById('finalScore'),
             rankingList: document.getElementById('rankingList')
         };
-
-        this.ctx = this.elements.canvas.getContext('2d');
-    }
-
-    /**
-     * Obtiene el contexto del canvas
-     * @returns {CanvasRenderingContext2D}
-     */
-    getContext() {
-        return this.ctx;
     }
 
     /**
