@@ -371,8 +371,13 @@ export class SnakeGame {
         }
 
         // Inicializar audio si no está inicializado (requiere interacción del usuario)
+        // No bloquear el inicio del juego si el audio falla
         if (!this.soundManager.initialized) {
-            await this.soundManager.init();
+            try {
+                await this.soundManager.init();
+            } catch (error) {
+                console.warn('Audio no disponible, el juego continuará sin sonido:', error);
+            }
         }
 
         this.resetGame();

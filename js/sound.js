@@ -8,7 +8,6 @@ export class SoundManager {
         this.initialized = false;
         this.muted = false;
         this.synth = null;
-        this.initialized = false;
     }
 
     /**
@@ -19,6 +18,12 @@ export class SoundManager {
         if (this.initialized) return;
 
         try {
+            // Verificar que Tone.js esté disponible
+            if (typeof Tone === 'undefined') {
+                console.warn('Tone.js no está disponible');
+                return;
+            }
+
             await Tone.start();
 
             // Crear sintetizador con un sonido agradable
