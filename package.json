@@ -1,0 +1,17 @@
+{
+  "name": "snake-game-3d",
+  "version": "0.3.0",
+  "description": "Snake game with 3D graphics and Supabase leaderboard",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
