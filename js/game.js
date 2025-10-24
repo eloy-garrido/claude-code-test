@@ -191,7 +191,7 @@ export class SnakeGame {
     /**
      * Termina el juego
      */
-    gameOver() {
+    async gameOver() {
         this.state.isRunning = false;
         clearInterval(this.state.gameLoop);
 
@@ -199,10 +199,10 @@ export class SnakeGame {
         this.soundManager.playGameOverSound();
 
         // Guardar puntaje
-        this.rankingManager.saveScore(this.state.playerName, this.state.score);
+        await this.rankingManager.saveScore(this.state.playerName, this.state.score);
 
         // Mostrar modal de game over
-        this.ui.showGameOverModal(this.state.score);
+        await this.ui.showGameOverModal(this.state.score);
     }
 
     /**

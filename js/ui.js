@@ -76,9 +76,9 @@ export class UIManager {
      * Muestra el modal de game over con el puntaje final
      * @param {number} score - Puntaje final
      */
-    showGameOverModal(score) {
+    async showGameOverModal(score) {
         this.elements.finalScoreDisplay.textContent = score;
-        this.displayRanking();
+        await this.displayRanking();
         this.elements.gameOverModal.classList.add('active');
     }
 
@@ -92,40 +92,50 @@ export class UIManager {
     /**
      * Muestra el ranking actualizado
      */
-    displayRanking() {
-        const rankings = this.rankingManager.getRankings();
-        this.elements.rankingList.innerHTML = '';
+    async displayRanking() {
+        // Mostrar mensaje de carga
+        this.elements.rankingList.innerHTML =
+            '<li class="ranking-item">Cargando ranking...</li>';
 
-        if (rankings.length === 0) {
+        try {
+            const rankings = await this.rankingManager.getRankings();
+            this.elements.rankingList.innerHTML = '';
+
+            if (rankings.length === 0) {
+                this.elements.rankingList.innerHTML =
+                    '<li class="ranking-item">No hay puntajes aún</li>';
+                return;
+            }
+
+            rankings.forEach((entry, index) => {
+                const li = document.createElement('li');
+                li.className = 'ranking-item';
+
+                // Agregar clase especial para los top 3
+                if (index === 0) li.classList.add('top-1');
+                else if (index === 1) li.classList.add('top-2');
+                else if (index === 2) li.classList.add('top-3');
+
+                // Agregar medalla para los top 3
+                const medal = index === 0 ? '🥇' :
+                             index === 1 ? '🥈' :
+                             index === 2 ? '🥉' : '';
+
+                li.innerHTML = `
+                    <span>
+                        <span class="rank-position">${index + 1}.</span>
+                        ${medal} ${entry.name}
+                    </span>
+                    <span><strong>${entry.score}</strong> puntos</span>
+                `;
+
+                this.elements.rankingList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('Error al mostrar el ranking:', error);
             this.elements.rankingList.innerHTML =
-                '<li class="ranking-item">No hay puntajes aún</li>';
-            return;
+                '<li class="ranking-item">Error al cargar el ranking</li>';
         }
-
-        rankings.forEach((entry, index) => {
-            const li = document.createElement('li');
-            li.className = 'ranking-item';
-
-            // Agregar clase especial para los top 3
-            if (index === 0) li.classList.add('top-1');
-            else if (index === 1) li.classList.add('top-2');
-            else if (index === 2) li.classList.add('top-3');
-
-            // Agregar medalla para los top 3
-            const medal = index === 0 ? '🥇' :
-                         index === 1 ? '🥈' :
-                         index === 2 ? '🥉' : '';
-
-            li.innerHTML = `
-                <span>
-                    <span class="rank-position">${index + 1}.</span>
-                    ${medal} ${entry.name}
-                </span>
-                <span><strong>${entry.score}</strong> puntos</span>
-            `;
-
-            this.elements.rankingList.appendChild(li);
-        });
     }
 
     /**

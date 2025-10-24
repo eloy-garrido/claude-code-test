@@ -3,6 +3,11 @@
  */
 
 export const CONFIG = {
+    // Configuración de Supabase
+    // IMPORTANTE: Reemplaza estos valores con tus credenciales de Supabase
+    // Obtén tus credenciales en: https://app.supabase.com/project/_/settings/api
+    SUPABASE_URL: '', // Ej: 'https://xxxxx.supabase.co'
+    SUPABASE_KEY: '', // Ej: 'tu-anon-key-aqui'
     // Configuración del canvas
     CANVAS_WIDTH: 600,
     CANVAS_HEIGHT: 600,
