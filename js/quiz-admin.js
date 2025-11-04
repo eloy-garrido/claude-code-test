@@ -19,7 +19,8 @@ export class AdminPanel {
             addAnswerBtn: document.getElementById('addAnswerBtn'),
             saveBtn: document.getElementById('saveQuestionBtn'),
             cancelBtn: document.getElementById('cancelEditBtn'),
-            questionsList: document.getElementById('questionsList')
+            questionsList: document.getElementById('questionsList'),
+            questionCount: document.getElementById('questionCount')
         };
 
         this.setupEventListeners();
@@ -65,8 +66,12 @@ export class AdminPanel {
     renderQuestions() {
         this.elements.questionsList.innerHTML = '';
 
+        // Actualizar contador
+        const count = this.questions.length;
+        this.elements.questionCount.textContent = `${count} pregunta${count !== 1 ? 's' : ''}`;
+
         if (this.questions.length === 0) {
-            this.elements.questionsList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay preguntas todavía</p>';
+            this.elements.questionsList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No hay preguntas todavía. ¡Crea la primera!</p>';
             return;
         }
 

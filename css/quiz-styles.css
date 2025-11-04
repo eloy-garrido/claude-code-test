@@ -541,6 +541,11 @@ body::before {
     font-size: 2rem;
 }
 
+.admin-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
 .admin-content {
     display: grid;
     gap: 30px;
@@ -749,10 +754,21 @@ body::before {
     .admin-header {
         flex-direction: column;
         gap: 15px;
+        align-items: stretch;
+        text-align: center;
     }
 
     .admin-header h1 {
         font-size: 1.5rem;
+    }
+
+    .admin-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .admin-header-actions .btn {
+        width: 100%;
     }
 
     .answer-input {

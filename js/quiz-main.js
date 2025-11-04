@@ -35,7 +35,8 @@ const elements = {
 
     // Admin screen
     adminScreen: document.getElementById('adminScreen'),
-    backToGameBtn: document.getElementById('backToGameBtn')
+    backToGameBtn: document.getElementById('backToGameBtn'),
+    playQuizFromAdminBtn: document.getElementById('playQuizFromAdminBtn')
 };
 
 /**
@@ -97,9 +98,14 @@ function setupEventListeners() {
         showAdminPanel();
     });
 
-    // Botón volver al juego desde admin
+    // Botón volver desde admin
     elements.backToGameBtn.addEventListener('click', () => {
-        switchScreen('resultsScreen');
+        switchScreen('loginScreen');
+    });
+
+    // Botón jugar quiz desde admin
+    elements.playQuizFromAdminBtn.addEventListener('click', () => {
+        startGame();
     });
 }
 
@@ -120,10 +126,12 @@ function handleStart() {
 
     if (isAdmin) {
         showToast('¡Bienvenido Administrador!', 'success');
+        // Ir directo al panel de administrador
+        setTimeout(() => showAdminPanel(), 500);
+    } else {
+        // Iniciar juego para usuarios normales
+        startGame();
     }
-
-    // Iniciar juego
-    startGame();
 }
 
 /**
