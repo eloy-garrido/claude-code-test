@@ -4,9 +4,10 @@
 
 import { getRandomQuestions, saveScore, getRanking } from './quiz-supabase.js';
 import { showToast } from './quiz-utils.js';
+import { QuizSoundManager } from './quiz-sound.js';
 
 export class QuizGame {
-    constructor() {
+    constructor(soundManager) {
         this.playerName = '';
         this.isAdmin = false;
         this.questions = [];
@@ -18,6 +19,7 @@ export class QuizGame {
         this.graceTime = 3; // 3 segundos de gracia para leer
         this.maxPointsPerQuestion = 10;
         this.isAnswering = false;
+        this.soundManager = soundManager;
 
         this.elements = {
             gamePlayerName: document.getElementById('gamePlayerName'),
@@ -51,6 +53,12 @@ export class QuizGame {
 
             if (this.questions.length === 0) {
                 throw new Error('No hay preguntas disponibles');
+            }
+
+            // Inicializar audio y reproducir sonido de inicio
+            if (this.soundManager) {
+                await this.soundManager.init();
+                this.soundManager.playStart();
             }
 
             // Mostrar primera pregunta
@@ -184,10 +192,12 @@ export class QuizGame {
             }
         });
 
-        // Mostrar mensaje
+        // Reproducir sonido y mostrar mensaje
         if (isCorrect) {
+            if (this.soundManager) this.soundManager.playCorrect();
             showToast(`¡Correcto! +${points} puntos`, 'success');
         } else {
+            if (this.soundManager) this.soundManager.playIncorrect();
             showToast('Respuesta incorrecta', 'error');
         }
 
@@ -217,6 +227,7 @@ export class QuizGame {
             }
         });
 
+        if (this.soundManager) this.soundManager.playTimeout();
         showToast('¡Se acabó el tiempo!', 'warning');
 
         // Siguiente pregunta después de 2 segundos
@@ -233,6 +244,11 @@ export class QuizGame {
         // Limpiar timer
         if (this.timer) {
             clearInterval(this.timer);
+        }
+
+        // Reproducir sonido de fin de juego
+        if (this.soundManager) {
+            this.soundManager.playGameOver();
         }
 
         // Guardar puntuación

@@ -519,6 +519,40 @@ body::before {
     justify-content: center;
 }
 
+/* Ranking Full Screen */
+.ranking-full-card {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.ranking-list-full {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Scrollbar personalizado */
+.ranking-list-full::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ranking-list-full::-webkit-scrollbar-track {
+    background: var(--bg-light);
+    border-radius: 10px;
+}
+
+.ranking-list-full::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+.ranking-list-full::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
 /* Admin Screen */
 .admin-container {
     background: var(--white);

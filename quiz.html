@@ -6,6 +6,7 @@
     <meta name="description" content="Juego de preguntas de medicina china con ranking y modo administrador">
     <title>Quiz de Medicina China</title>
     <link rel="stylesheet" href="css/quiz-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
 </head>
 <body>
     <!-- Contenedor principal -->
@@ -35,6 +36,25 @@
                             <p class="hint">💡 Usa "taiyangadm" para acceder como administrador</p>
                         </div>
                         <button class="btn btn-primary" id="startBtn">Comenzar</button>
+                        <button class="btn btn-secondary" id="viewRankingBtn" style="margin-top: 15px;">🏆 Ver Ranking</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Ranking -->
+        <div class="screen" id="rankingScreen">
+            <div class="card ranking-full-card">
+                <div class="card-header">
+                    <h1>🏆 Ranking Global</h1>
+                    <p class="subtitle">Los mejores jugadores de todos los tiempos</p>
+                </div>
+                <div class="card-body">
+                    <div class="ranking-list-full" id="rankingListFull">
+                        <!-- El ranking se genera dinámicamente -->
+                    </div>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn btn-primary" id="backToLoginBtn">⬅️ Volver al Inicio</button>
                     </div>
                 </div>
             </div>
