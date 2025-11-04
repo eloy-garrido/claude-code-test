@@ -3,80 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Juego clásico de Snake con gráficos modernos, sistema de vidas y ranking">
-    <meta name="author" content="Snake Game">
-    <title>Snake Game - Juego de la Serpiente</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="description" content="Juego de preguntas de medicina china con ranking y modo administrador">
+    <title>Quiz de Medicina China</title>
+    <link rel="stylesheet" href="css/quiz-styles.css">
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>🐍 Snake Game</h1>
+    <!-- Contenedor principal -->
+    <div class="container" id="app">
 
-        <!-- Información del juego -->
-        <div class="game-info">
-            <div class="info-item">
-                <div class="info-label">Jugador</div>
-                <div class="info-value" id="playerName">---</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Puntaje</div>
-                <div class="info-value" id="score">0</div>
-            </div>
-            <div class="info-item lives">
-                <div class="info-label">Vidas</div>
-                <div class="info-value" id="lives">❤️❤️❤️</div>
+        <!-- Pantalla de Login -->
+        <div class="screen active" id="loginScreen">
+            <div class="card login-card">
+                <div class="card-header">
+                    <h1>🏥 Quiz de Medicina China</h1>
+                    <p class="subtitle">Pon a prueba tus conocimientos</p>
+                </div>
+                <div class="card-body">
+                    <div class="connection-status" id="connectionStatus">
+                        <div class="spinner"></div>
+                        <span>Verificando conexión...</span>
+                    </div>
+                    <div id="loginForm" style="display: none;">
+                        <div class="form-group">
+                            <label for="playerName">Ingresa tu nombre</label>
+                            <input
+                                type="text"
+                                id="playerName"
+                                placeholder="Tu nombre"
+                                maxlength="20"
+                                autocomplete="off">
+                            <p class="hint">💡 Usa "taiyangadm" para acceder como administrador</p>
+                        </div>
+                        <button class="btn btn-primary" id="startBtn">Comenzar</button>
+                        <button class="btn btn-secondary" id="viewRankingBtn" style="margin-top: 15px;">🏆 Ver Ranking</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Canvas del juego -->
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
-
-        <!-- Controles -->
-        <div class="controls">
-            <p><strong>Controles:</strong> Flechas ⬆️ ⬇️ ⬅️ ➡️ o teclas WASD</p>
-            <p>Come las manzanas para crecer y ganar puntos</p>
-            <button id="startBtn">Iniciar Juego</button>
-            <button id="pauseBtn" style="display: none;">Pausar</button>
-            <button id="muteBtn" title="Activar/Desactivar sonido">🔊 Sonido</button>
+        <!-- Pantalla de Ranking -->
+        <div class="screen" id="rankingScreen">
+            <div class="card ranking-full-card">
+                <div class="card-header">
+                    <h1>🏆 Ranking Global</h1>
+                    <p class="subtitle">Los mejores jugadores de todos los tiempos</p>
+                </div>
+                <div class="card-body">
+                    <div class="ranking-list-full" id="rankingListFull">
+                        <!-- El ranking se genera dinámicamente -->
+                    </div>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn btn-primary" id="backToLoginBtn">⬅️ Volver al Inicio</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Versión -->
-        <div class="version">v0.3</div>
+        <!-- Pantalla del Juego -->
+        <div class="screen" id="gameScreen">
+            <div class="game-header">
+                <div class="player-info">
+                    <span class="player-name" id="gamePlayerName">Jugador</span>
+                    <span class="player-role" id="playerRole"></span>
+                </div>
+                <div class="game-stats">
+                    <div class="stat">
+                        <span class="stat-label">Pregunta</span>
+                        <span class="stat-value" id="questionNumber">1/10</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Puntos</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timerFill"></div>
+                </div>
+                <div class="question-card">
+                    <h2 class="question-text" id="questionText">Cargando pregunta...</h2>
+                    <div class="answers" id="answersContainer">
+                        <!-- Las respuestas se generan dinámicamente -->
+                    </div>
+                </div>
+                <div class="question-footer">
+                    <div class="time-info">
+                        <span id="timeLeft">0</span> segundos
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div class="screen" id="resultsScreen">
+            <div class="card results-card">
+                <div class="card-header">
+                    <h1>🎉 ¡Juego Terminado!</h1>
+                </div>
+                <div class="card-body">
+                    <div class="final-score">
+                        <div class="score-label">Puntuación Final</div>
+                        <div class="score-value" id="finalScore">0</div>
+                        <div class="score-detail" id="scoreDetail"></div>
+                    </div>
+
+                    <div class="ranking-section">
+                        <h2>🏆 Ranking Global</h2>
+                        <div class="ranking-list" id="rankingList">
+                            <!-- El ranking se genera dinámicamente -->
+                        </div>
+                    </div>
+
+                    <div class="results-actions">
+                        <button class="btn btn-primary" id="playAgainBtn">Jugar de Nuevo</button>
+                        <button class="btn btn-secondary" id="viewAdminBtn" style="display: none;">Panel Admin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Administrador -->
+        <div class="screen" id="adminScreen">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h1>⚙️ Panel de Administrador</h1>
+                    <div class="admin-header-actions">
+                        <button class="btn btn-primary" id="playQuizFromAdminBtn">🎮 Jugar Quiz</button>
+                        <button class="btn btn-secondary" id="backToGameBtn">⬅️ Volver</button>
+                    </div>
+                </div>
+
+                <div class="admin-content">
+                    <!-- Formulario para crear/editar pregunta -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 id="formTitle">Nueva Pregunta</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="questionForm">
+                                <input type="hidden" id="questionId">
+
+                                <div class="form-group">
+                                    <label for="questionInput">Pregunta</label>
+                                    <textarea
+                                        id="questionInput"
+                                        rows="3"
+                                        placeholder="Escribe la pregunta aquí..."
+                                        required></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Respuestas (2-3 opciones)</label>
+                                    <div id="answersInputContainer">
+                                        <div class="answer-input">
+                                            <input type="text" placeholder="Respuesta 1" required>
+                                            <label class="checkbox-label">
+                                                <input type="radio" name="correctAnswer" value="0" required>
+                                                <span>Correcta</span>
+                                            </label>
+                                        </div>
+                                        <div class="answer-input">
+                                            <input type="text" placeholder="Respuesta 2" required>
+                                            <label class="checkbox-label">
+                                                <input type="radio" name="correctAnswer" value="1">
+                                                <span>Correcta</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="answer-actions">
+                                        <button type="button" class="btn btn-small" id="addAnswerBtn">+ Agregar Respuesta</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="saveQuestionBtn">Guardar Pregunta</button>
+                                    <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display: none;">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Lista de preguntas -->
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>📋 Preguntas Existentes</h2>
+                            <span class="question-count" id="questionCount" style="background: rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 20px; font-weight: 600;">0 preguntas</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="questions-list" id="questionsList">
+                                <!-- Las preguntas se generan dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Modal para ingresar nombre -->
-    <div id="nameModal" class="modal active">
-        <div class="modal-content">
-            <h2>¡Bienvenido al Snake Game!</h2>
-            <p>Ingresa tu nombre para comenzar:</p>
-            <input
-                type="text"
-                id="playerNameInput"
-                placeholder="Tu nombre"
-                maxlength="20"
-                autocomplete="off">
-            <button id="startGameBtn">Comenzar</button>
-        </div>
-    </div>
-
-    <!-- Modal de Game Over -->
-    <div id="gameOverModal" class="modal">
-        <div class="modal-content">
-            <h2>¡Juego Terminado!</h2>
-            <p class="game-over-text">
-                Puntaje Final: <strong id="finalScore">0</strong>
-            </p>
-            <div class="ranking">
-                <h3>🏆 Top 10 Ranking</h3>
-                <ul class="ranking-list" id="rankingList"></ul>
-            </div>
-            <button id="playAgainBtn">Jugar de Nuevo</button>
-        </div>
-    </div>
+    <!-- Notificaciones Toast -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Scripts -->
-    <script type="module" src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/quiz-main.js"></script>
 </body>
 </html>
