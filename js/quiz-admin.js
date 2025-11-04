@@ -2,13 +2,14 @@
  * Panel de administrador para gestionar preguntas
  */
 
-import { getAllQuestions, createQuestion, updateQuestion, deleteQuestion } from './quiz-supabase.js';
+import { getQuestionsByVisibility, createQuestion, updateQuestion, deleteQuestion, updateQuestionVisibility } from './quiz-supabase.js';
 import { showToast, validateQuestion } from './quiz-utils.js';
 
 export class AdminPanel {
     constructor() {
         this.questions = [];
         this.editingQuestionId = null;
+        this.showingHidden = false; // false = mostrando visibles, true = mostrando ocultas
 
         this.elements = {
             form: document.getElementById('questionForm'),
@@ -23,7 +24,8 @@ export class AdminPanel {
             questionCount: document.getElementById('questionCount'),
             exportBtn: document.getElementById('exportQuestionsBtn'),
             importBtn: document.getElementById('importQuestionsBtn'),
-            importFileInput: document.getElementById('importFileInput')
+            importFileInput: document.getElementById('importFileInput'),
+            toggleVisibilityBtn: document.getElementById('toggleVisibilityBtn')
         };
 
         this.setupEventListeners();
@@ -63,19 +65,42 @@ export class AdminPanel {
         this.elements.importFileInput.addEventListener('change', (e) => {
             this.importQuestions(e);
         });
+
+        // Botón toggle visibilidad
+        this.elements.toggleVisibilityBtn.addEventListener('click', () => {
+            this.toggleVisibilityView();
+        });
     }
 
     /**
-     * Carga todas las preguntas
+     * Carga preguntas según el estado actual (visibles u ocultas)
      */
     async loadQuestions() {
         try {
-            this.questions = await getAllQuestions();
+            // Cargar según si está mostrando ocultas o visibles
+            this.questions = await getQuestionsByVisibility(!this.showingHidden);
             this.renderQuestions();
         } catch (error) {
             console.error('Error al cargar preguntas:', error);
             showToast('Error al cargar las preguntas', 'error');
         }
+    }
+
+    /**
+     * Alterna entre mostrar preguntas visibles y ocultas
+     */
+    async toggleVisibilityView() {
+        this.showingHidden = !this.showingHidden;
+
+        // Actualizar texto del botón
+        if (this.showingHidden) {
+            this.elements.toggleVisibilityBtn.innerHTML = '👁️ Mostrar Preguntas Visibles';
+        } else {
+            this.elements.toggleVisibilityBtn.innerHTML = '👁️ Mostrar Preguntas Ocultas';
+        }
+
+        // Recargar preguntas
+        await this.loadQuestions();
     }
 
     /**
@@ -102,12 +127,17 @@ export class AdminPanel {
                 return `<div class="answer-item ${isCorrect ? 'correct' : ''}">${answer} ${isCorrect ? '✓' : ''}</div>`;
             }).join('');
 
+            // Determinar el texto del botón de visibilidad
+            const visibilityBtnText = this.showingHidden ? '👁️' : '🚫';
+            const visibilityBtnTitle = this.showingHidden ? 'Hacer visible' : 'Ocultar pregunta';
+
             item.innerHTML = `
                 <div class="question-item-header">
                     <div class="question-item-text">${question.question_text}</div>
                     <div class="question-item-actions">
-                        <button class="btn-icon edit" data-id="${question.id}">✏️</button>
-                        <button class="btn-icon delete" data-id="${question.id}">🗑️</button>
+                        <button class="btn-icon visibility" data-id="${question.id}" title="${visibilityBtnTitle}">${visibilityBtnText}</button>
+                        <button class="btn-icon edit" data-id="${question.id}" title="Editar">✏️</button>
+                        <button class="btn-icon delete" data-id="${question.id}" title="Eliminar">🗑️</button>
                     </div>
                 </div>
                 <div class="question-item-answers">
@@ -115,7 +145,11 @@ export class AdminPanel {
                 </div>
             `;
 
-            // Event listeners para editar y eliminar
+            // Event listeners para visibilidad, editar y eliminar
+            item.querySelector('.visibility').addEventListener('click', () => {
+                this.toggleQuestionVisibility(question.id);
+            });
+
             item.querySelector('.edit').addEventListener('click', () => {
                 this.editQuestion(question.id);
             });
@@ -265,6 +299,30 @@ export class AdminPanel {
         } catch (error) {
             console.error('Error al eliminar pregunta:', error);
             showToast('Error al eliminar la pregunta: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * Alterna la visibilidad de una pregunta
+     */
+    async toggleQuestionVisibility(questionId) {
+        try {
+            // La nueva visibilidad es opuesta al estado actual
+            // Si estamos mostrando ocultas (showingHidden=true), queremos hacer visible=true
+            // Si estamos mostrando visibles (showingHidden=false), queremos hacer visible=false
+            const newVisibility = this.showingHidden;
+
+            await updateQuestionVisibility(questionId, newVisibility);
+
+            const message = newVisibility
+                ? 'Pregunta ahora visible para estudiantes'
+                : 'Pregunta ocultada correctamente';
+
+            showToast(message, 'success');
+            await this.loadQuestions();
+        } catch (error) {
+            console.error('Error al cambiar visibilidad:', error);
+            showToast('Error al cambiar visibilidad: ' + error.message, 'error');
         }
     }
 

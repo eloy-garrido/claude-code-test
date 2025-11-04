@@ -46,7 +46,7 @@ export async function checkConnection() {
 }
 
 /**
- * Obtiene todas las preguntas
+ * Obtiene todas las preguntas (visible e ocultas, para admin)
  * @returns {Promise<Array>}
  */
 export async function getAllQuestions() {
@@ -65,22 +65,43 @@ export async function getAllQuestions() {
 }
 
 /**
- * Obtiene preguntas aleatorias para el juego
+ * Obtiene preguntas según su visibilidad
+ * @param {boolean} visible - true para visibles, false para ocultas
+ * @returns {Promise<Array>}
+ */
+export async function getQuestionsByVisibility(visible = true) {
+    try {
+        const { data, error } = await supabase
+            .from('questions')
+            .select('*')
+            .eq('visible', visible)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('Error al obtener preguntas por visibilidad:', error);
+        throw error;
+    }
+}
+
+/**
+ * Obtiene preguntas aleatorias para el juego (solo visibles)
  * @param {number} count - Número de preguntas a obtener
  * @returns {Promise<Array>}
  */
 export async function getRandomQuestions(count = 10) {
     try {
-        // Primero obtenemos todas las preguntas
-        const allQuestions = await getAllQuestions();
+        // Obtener solo preguntas visibles
+        const visibleQuestions = await getQuestionsByVisibility(true);
 
-        if (allQuestions.length === 0) {
+        if (visibleQuestions.length === 0) {
             throw new Error('No hay preguntas disponibles en la base de datos');
         }
 
         // Mezclamos aleatoriamente y tomamos las primeras 'count'
-        const shuffled = allQuestions.sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, Math.min(count, allQuestions.length));
+        const shuffled = visibleQuestions.sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, Math.min(count, visibleQuestions.length));
     } catch (error) {
         console.error('Error al obtener preguntas aleatorias:', error);
         throw error;
@@ -135,6 +156,29 @@ export async function updateQuestion(id, question) {
         return data;
     } catch (error) {
         console.error('Error al actualizar pregunta:', error);
+        throw error;
+    }
+}
+
+/**
+ * Actualiza la visibilidad de una pregunta
+ * @param {string} id - ID de la pregunta
+ * @param {boolean} visible - true para visible, false para oculta
+ * @returns {Promise<Object>}
+ */
+export async function updateQuestionVisibility(id, visible) {
+    try {
+        const { data, error } = await supabase
+            .from('questions')
+            .update({ visible })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Error al actualizar visibilidad:', error);
         throw error;
     }
 }
