@@ -220,6 +220,43 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Gestión de Ranking -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>🏆 Gestión de Ranking</h2>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: var(--text-light); margin-bottom: 20px;">
+                                Reinicia el ranking actual archivándolo en el historial. Podrás consultarlo más tarde.
+                            </p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                <button class="btn btn-danger" id="resetRankingBtn">
+                                    🔄 Reiniciar Ranking
+                                </button>
+                                <button class="btn btn-secondary" id="viewHistoryBtn">
+                                    📜 Ver Historial
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Historial de Rankings -->
+        <div class="screen" id="historyScreen">
+            <div class="card ranking-card-full">
+                <div class="card-header">
+                    <h1>📜 Historial de Rankings</h1>
+                </div>
+                <div class="card-body">
+                    <div id="rankingPeriodsContainer">
+                        <!-- Los períodos se generan dinámicamente -->
+                    </div>
+                    <div class="form-actions" style="margin-top: 30px;">
+                        <button class="btn btn-secondary" id="backFromHistoryBtn">⬅️ Volver</button>
+                    </div>
                 </div>
             </div>
         </div>

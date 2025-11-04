@@ -248,3 +248,140 @@ export async function getRanking() {
         throw error;
     }
 }
+
+/**
+ * Obtiene el ranking completo (sin límite)
+ * @returns {Promise<Array>}
+ */
+export async function getFullRanking() {
+    try {
+        const { data, error } = await supabase
+            .from('ranking')
+            .select('*')
+            .order('score', { ascending: false })
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('Error al obtener ranking completo:', error);
+        throw error;
+    }
+}
+
+/**
+ * Archiva el ranking actual al historial y lo reinicia
+ * @param {string} periodLabel - Etiqueta opcional para identificar el período (ej: "Enero 2025")
+ * @returns {Promise<{archived: number, message: string}>}
+ */
+export async function archiveAndResetRanking(periodLabel = null) {
+    try {
+        // 1. Obtener todos los registros del ranking actual
+        const currentRanking = await getFullRanking();
+
+        if (currentRanking.length === 0) {
+            return {
+                archived: 0,
+                message: 'No hay datos en el ranking para archivar'
+            };
+        }
+
+        // 2. Preparar los datos para el historial
+        const historyRecords = currentRanking.map(record => ({
+            player_name: record.player_name,
+            score: record.score,
+            correct_answers: record.correct_answers,
+            total_questions: record.questions_answered,
+            played_at: record.created_at,
+            ranking_period: periodLabel || `Ranking hasta ${new Date().toLocaleDateString('es-ES')}`
+        }));
+
+        // 3. Insertar en ranking_history
+        const { error: insertError } = await supabase
+            .from('ranking_history')
+            .insert(historyRecords);
+
+        if (insertError) throw insertError;
+
+        // 4. Eliminar todos los registros del ranking actual
+        const { error: deleteError } = await supabase
+            .from('ranking')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000'); // Elimina todos los registros
+
+        if (deleteError) throw deleteError;
+
+        return {
+            archived: currentRanking.length,
+            message: `Se archivaron ${currentRanking.length} registros correctamente`
+        };
+    } catch (error) {
+        console.error('Error al archivar y reiniciar ranking:', error);
+        throw error;
+    }
+}
+
+/**
+ * Obtiene los períodos de rankings históricos disponibles
+ * @returns {Promise<Array<{period: string, count: number, firstDate: string, lastDate: string}>>}
+ */
+export async function getRankingPeriods() {
+    try {
+        const { data, error } = await supabase
+            .from('ranking_history')
+            .select('ranking_period, archived_at, player_name')
+            .order('archived_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Agrupar por período
+        const periodsMap = new Map();
+
+        (data || []).forEach(record => {
+            const period = record.ranking_period || 'Sin período';
+            if (!periodsMap.has(period)) {
+                periodsMap.set(period, {
+                    period: period,
+                    count: 0,
+                    dates: []
+                });
+            }
+            const periodData = periodsMap.get(period);
+            periodData.count++;
+            periodData.dates.push(record.archived_at);
+        });
+
+        // Convertir a array y agregar fechas
+        return Array.from(periodsMap.values()).map(p => ({
+            period: p.period,
+            count: p.count,
+            firstDate: p.dates[p.dates.length - 1],
+            lastDate: p.dates[0]
+        }));
+    } catch (error) {
+        console.error('Error al obtener períodos de ranking:', error);
+        throw error;
+    }
+}
+
+/**
+ * Obtiene el ranking histórico de un período específico
+ * @param {string} periodLabel - Etiqueta del período a consultar
+ * @returns {Promise<Array>}
+ */
+export async function getHistoricalRanking(periodLabel) {
+    try {
+        const { data, error } = await supabase
+            .from('ranking_history')
+            .select('*')
+            .eq('ranking_period', periodLabel)
+            .order('score', { ascending: false })
+            .order('played_at', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('Error al obtener ranking histórico:', error);
+        throw error;
+    }
+}
