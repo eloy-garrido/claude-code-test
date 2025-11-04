@@ -1,217 +1,261 @@
-# Snake Game - Juego de la Serpiente
+# Quiz de Medicina China
 
-Un juego clásico de Snake con gráficos modernos, sistema de vidas, puntaje y ranking. Desarrollado con arquitectura modular y buenas prácticas de JavaScript.
+Juego de preguntas interactivo sobre Medicina Tradicional China con sistema de puntuación, ranking global y panel de administración.
 
-## Características
+## 🎮 Características
 
-- **Gráficos atractivos**: Diseño moderno con gradientes, sombras y animaciones
-- **Efectos de sonido**: Audio inmersivo con Tone.js para cada acción del juego
-- **Sistema de 3 vidas**: Tienes 3 oportunidades antes de que termine el juego
-- **Sistema de puntaje**: Gana 10 puntos por cada manzana que comas
-- **Ranking persistente**: Los mejores puntajes se guardan y se muestran en un top 10
-- **Dificultad progresiva**: El juego se vuelve más rápido a medida que subes tu puntaje
-- **Interfaz intuitiva**: Controles simples con las flechas del teclado
-- **Código modular**: Arquitectura organizada en módulos ES6
+### Funcionalidades Principales
 
-## Estructura del Proyecto
+- **Sistema de Login**: Ingresa tu nombre para comenzar
+- **Modo Administrador**: Usa el nombre "taiyangadm" para acceder al panel admin
+- **10 Preguntas por Juego**: Cada partida incluye 10 preguntas aleatorias
+- **Sistema de Puntuación Inteligente**:
+  - 10 puntos por respuesta correcta
+  - -1 punto por cada segundo transcurrido
+  - 3 segundos de gracia para leer la pregunta
+  - Mínimo 1 punto por respuesta correcta
+- **Preguntas con 2-3 Alternativas**: Variedad en las opciones de respuesta
+- **Ranking Global**: Los mejores puntajes se guardan en Supabase
+- **Panel de Administrador**: Crear, editar y eliminar preguntas
+- **Diseño Responsivo**: Optimizado para móvil y escritorio
+- **Animaciones y Gradientes**: Interfaz visual atractiva
 
-```
-snake-game/
-├── index.html              # Página principal del juego
-├── css/
-│   └── styles.css         # Estilos y diseño visual
-├── js/
-│   ├── main.js            # Punto de entrada de la aplicación
-│   ├── game.js            # Lógica principal del juego
-│   ├── config.js          # Configuración y constantes
-│   ├── ranking.js         # Sistema de ranking y localStorage
-│   ├── ui.js              # Gestión de interfaz de usuario
-│   └── sound.js           # Sistema de efectos de sonido
-└── README.md              # Documentación
-```
+### Tecnologías Utilizadas
 
-### Descripción de archivos
+- **HTML5**: Estructura semántica
+- **CSS3**: Animaciones, gradientes y diseño responsivo
+- **JavaScript ES6+**: Módulos, clases y async/await
+- **Supabase**: Base de datos PostgreSQL en la nube
+- **LocalStorage**: Para futuras mejoras
 
-#### `index.html`
-Estructura HTML del juego con elementos del DOM para el canvas, modales y controles.
+## 📋 Requisitos Previos
 
-#### `css/styles.css`
-Estilos completos del juego incluyendo:
-- Diseño responsive
-- Gradientes y animaciones
-- Estilos de modales y ranking
-- Efectos hover y transiciones
+1. **Cuenta de Supabase**: [Crear cuenta gratuita](https://supabase.com)
+2. **Navegador Moderno**: Chrome, Firefox, Safari o Edge
+3. **Servidor Local**: Para ejecutar la aplicación (Python, Node.js o PHP)
 
-#### `js/main.js`
-Punto de entrada que inicializa el juego cuando el DOM está listo.
+## 🚀 Instalación
 
-#### `js/config.js`
-Archivo de configuración centralizada con:
-- Dimensiones del canvas y grid
-- Velocidades del juego
-- Puntuación y vidas
-- Paleta de colores
-- Tamaños de elementos
-
-#### `js/game.js`
-Clase principal `SnakeGame` que contiene:
-- Lógica del juego (movimiento, colisiones, puntuación)
-- Renderizado del canvas (serpiente, comida, grid)
-- Gestión del estado del juego
-- Manejo de eventos del teclado
-
-#### `js/ranking.js`
-Clase `RankingManager` para:
-- Guardar y recuperar puntajes
-- Gestión de localStorage
-- Ordenamiento y filtrado del top 10
-- Validación de posiciones
-
-#### `js/ui.js`
-Clase `UIManager` que maneja:
-- Referencias a elementos del DOM
-- Actualización de displays (puntaje, vidas, nombre)
-- Gestión de modales
-- Visualización del ranking
-- Interacciones de UI
-
-#### `js/sound.js`
-Clase `SoundManager` para efectos de sonido:
-- Síntesis de audio con Tone.js
-- Sonido al comer manzanas
-- Sonido al perder vidas
-- Sonido de game over
-- Sonido de inicio del juego
-- Sonido al aumentar velocidad
-- Control de silencio/activación
-
-## Efectos de Sonido
-
-El juego incluye un sistema completo de audio usando **Tone.js**:
-
-- **🍎 Comer manzana**: Secuencia ascendente alegre (C5 → E5)
-- **💔 Perder vida**: Secuencia descendente (E4 → C4 → A3)
-- **☠️ Game Over**: Melodía dramática de 5 notas
-- **🎮 Inicio**: Arpeggio energético ascendente (C4 → E4 → G4)
-- **⚡ Aumento de velocidad**: Arpeggio rápido hacia C6
-
-### Control de Audio
-- Botón **🔊 Sonido** para activar/desactivar efectos
-- El audio se inicializa automáticamente al empezar el juego
-- Cumple con las políticas de autoplay de navegadores modernos
-
-## Cómo jugar
-
-1. Abre el archivo `index.html` en tu navegador web
-2. Ingresa tu nombre cuando se te solicite
-3. Haz clic en "Comenzar" o "Iniciar Juego"
-4. Controla la serpiente con el teclado:
-   - **Flechas del teclado:**
-     - ⬆️ Flecha arriba: Mover hacia arriba
-     - ⬇️ Flecha abajo: Mover hacia abajo
-     - ⬅️ Flecha izquierda: Mover hacia la izquierda
-     - ➡️ Flecha derecha: Mover hacia la derecha
-   - **Teclas WASD:**
-     - W: Mover hacia arriba
-     - S: Mover hacia abajo
-     - A: Mover hacia la izquierda
-     - D: Mover hacia la derecha
-5. Come las manzanas rojas para crecer y ganar puntos
-6. Evita chocar con las paredes o con tu propio cuerpo
-
-## Objetivo
-
-Obtén el puntaje más alto posible comiendo manzanas. Cada manzana vale 10 puntos. Tienes 3 vidas, así que puedes cometer errores, pero cada colisión te costará una vida.
-
-## Sistema de ranking
-
-El juego guarda automáticamente los 10 mejores puntajes en el almacenamiento local de tu navegador. Al terminar una partida, verás el ranking completo con medallas para los 3 primeros lugares:
-
-- 🥇 Primer lugar
-- 🥈 Segundo lugar
-- 🥉 Tercer lugar
-
-## Tecnologías utilizadas
-
-- **HTML5 Canvas**: Para renderizado de gráficos 2D
-- **CSS3**: Diseño moderno con gradientes, flexbox y animaciones
-- **JavaScript ES6+**: Módulos, clases, arrow functions
-- **Tone.js**: Síntesis de audio y efectos de sonido (CDN v14.8.49)
-- **LocalStorage API**: Persistencia de datos del ranking
-
-## Instalación
-
-No requiere instalación ni dependencias. Simplemente abre el archivo `index.html` en cualquier navegador web moderno.
-
-### Servidor local (opcional)
-
-Si prefieres usar un servidor local:
+### 1. Clonar o Descargar el Proyecto
 
 ```bash
-# Con Python 3
+git clone <tu-repositorio>
+cd claude-code-test
+```
+
+### 2. Configurar Supabase
+
+#### a) Crear las Tablas
+
+1. Ve a tu proyecto en [Supabase](https://supabase.com)
+2. Navega a **SQL Editor**
+3. Copia y ejecuta el contenido de `supabase-schema.sql`
+
+Este script creará:
+- Tabla `questions`: Para almacenar las preguntas
+- Tabla `ranking`: Para almacenar las puntuaciones
+- Índices para optimizar consultas
+- Políticas de seguridad (RLS)
+
+#### b) Insertar Preguntas Iniciales
+
+1. En el mismo **SQL Editor**
+2. Copia y ejecuta el contenido de `supabase-initial-data.sql`
+
+Esto insertará 10 preguntas de medicina china para comenzar.
+
+### 3. Configurar Variables de Entorno
+
+El archivo `.env` ya está configurado con tus credenciales. Si necesitas actualizarlo:
+
+```env
+SUPABASE_URL=https://mjllipisteslliluhvar.supabase.co
+SUPABASE_ANON_KEY=tu_clave_aqui
+```
+
+**IMPORTANTE**: El archivo `.env` está en `.gitignore` para proteger tus credenciales.
+
+### 4. Iniciar Servidor Local
+
+Elige uno de los siguientes métodos:
+
+#### Con Python 3:
+```bash
 python -m http.server 8000
+```
 
-# Con Node.js (npx)
+#### Con Node.js:
+```bash
 npx serve
+```
 
-# Con PHP
+#### Con PHP:
+```bash
 php -S localhost:8000
 ```
 
-Luego abre `http://localhost:8000` en tu navegador.
+### 5. Abrir la Aplicación
 
-## Compatibilidad
+Navega a: `http://localhost:8000/quiz.html`
 
-El juego es compatible con todos los navegadores modernos que soporten:
-- HTML5 Canvas
-- ES6 Modules
-- LocalStorage
+## 🎯 Cómo Jugar
 
-Navegadores probados:
-- Chrome 60+
-- Firefox 60+
-- Safari 12+
-- Edge 79+
+### Modo Jugador
 
-## Personalización
+1. **Login**: Ingresa tu nombre en la pantalla inicial
+2. **Espera**: La app verifica la conexión con Supabase
+3. **Juega**: Responde las 10 preguntas lo más rápido posible
+4. **Puntuación**:
+   - Cada respuesta correcta vale 10 puntos
+   - Se resta 1 punto por cada segundo después de los 3 segundos de gracia
+   - Ejemplo: Si respondes correctamente en 8 segundos → 10 - (8-3) = 5 puntos
+5. **Ranking**: Al finalizar, ve tu posición en el ranking global
 
-Puedes personalizar el juego modificando `js/config.js`:
+### Modo Administrador
 
-```javascript
-export const CONFIG = {
-    CANVAS_WIDTH: 600,        // Ancho del canvas
-    CANVAS_HEIGHT: 600,       // Alto del canvas
-    GRID_SIZE: 20,            // Tamaño de cada celda
-    INITIAL_SPEED: 100,       // Velocidad inicial (ms)
-    POINTS_PER_FOOD: 10,      // Puntos por manzana
-    INITIAL_LIVES: 3,         // Número de vidas
-    // ... más opciones
-};
+1. **Login**: Ingresa "taiyangadm" como nombre
+2. **Juega**: Completa el juego normalmente
+3. **Panel Admin**: Al finalizar, haz clic en "Panel Admin"
+4. **Gestión de Preguntas**:
+   - **Crear**: Completa el formulario y guarda
+   - **Editar**: Haz clic en el botón ✏️ de cualquier pregunta
+   - **Eliminar**: Haz clic en el botón 🗑️ (requiere confirmación)
+
+### Reglas de Preguntas
+
+- El texto de la pregunta no puede estar vacío
+- Debe haber entre 2 y 3 respuestas
+- Todas las respuestas deben tener texto
+- Debe marcarse una respuesta como correcta
+
+## 📁 Estructura del Proyecto
+
+```
+claude-code-test/
+├── quiz.html                      # Página principal del quiz
+├── css/
+│   └── quiz-styles.css           # Estilos con animaciones
+├── js/
+│   ├── quiz-main.js              # Punto de entrada
+│   ├── quiz-game.js              # Lógica del juego
+│   ├── quiz-admin.js             # Panel de administrador
+│   ├── quiz-supabase.js          # Cliente de Supabase
+│   └── quiz-utils.js             # Utilidades (toasts, validaciones)
+├── supabase-schema.sql           # Script para crear tablas
+├── supabase-initial-data.sql     # 10 preguntas iniciales
+├── .env                          # Variables de entorno (NO subir a git)
+├── .gitignore                    # Archivos ignorados por git
+└── QUIZ-README.md                # Este archivo
 ```
 
-## Desarrollo
+## 🎨 Características de Diseño
 
-### Arquitectura
+### Colores y Gradientes
 
-El proyecto sigue principios de:
-- **Separación de responsabilidades**: Cada módulo tiene una función específica
-- **Encapsulación**: Uso de clases para agrupar lógica relacionada
-- **Modularidad**: Código dividido en módulos reutilizables
-- **Configuración centralizada**: Constantes en un solo lugar
+- **Primario**: Gradiente púrpura-azul (#667eea → #764ba2)
+- **Éxito**: Verde (#10b981)
+- **Error**: Rojo (#ef4444)
+- **Advertencia**: Naranja (#f59e0b)
 
-### Flujo de la aplicación
+### Animaciones
 
-1. `main.js` inicializa el juego
-2. `SnakeGame` crea instancias de `RankingManager` y `UIManager`
-3. Se configura el estado inicial desde `config.js`
-4. Se establecen event listeners
-5. El loop del juego actualiza y renderiza cada frame
-6. Los puntajes se guardan en `RankingManager` al terminar
+- **FadeIn**: Transición suave al cargar pantallas
+- **SlideUp**: Animación de entrada de tarjetas
+- **Pulse**: Efecto en respuestas correctas
+- **Shake**: Efecto en respuestas incorrectas
+- **Gradient Shift**: Fondo animado
 
-## Licencia
+### Responsive
 
-Este proyecto es de código abierto y está disponible para uso educativo y personal.
+- **Desktop**: Diseño completo con sidebar
+- **Tablet**: Layout adaptado
+- **Móvil**: Vista optimizada para pantallas pequeñas
+
+## 🔒 Seguridad
+
+### Supabase Row Level Security (RLS)
+
+Las políticas configuradas permiten:
+- ✅ Lectura de preguntas y ranking para todos
+- ✅ Inserción de nuevas preguntas y puntuaciones
+- ✅ Actualización y eliminación de preguntas
+
+### Protección de Credenciales
+
+- El archivo `.env` está en `.gitignore`
+- Las credenciales se cargan desde el archivo JS (en producción, usar variables de entorno del servidor)
+
+## 🐛 Solución de Problemas
+
+### Error de Conexión con Supabase
+
+**Problema**: "Error al conectar con Supabase"
+
+**Soluciones**:
+1. Verifica que las credenciales en `.env` y `quiz-supabase.js` sean correctas
+2. Asegúrate de que las tablas estén creadas
+3. Revisa que RLS esté configurado correctamente
+4. Verifica tu conexión a internet
+
+### No hay Preguntas Disponibles
+
+**Problema**: "No hay preguntas disponibles en la base de datos"
+
+**Soluciones**:
+1. Ejecuta el script `supabase-initial-data.sql`
+2. Usa el panel de administrador para agregar preguntas manualmente
+3. Verifica que la tabla `questions` exista
+
+### El Timer no Funciona Correctamente
+
+**Problema**: El contador de tiempo se comporta extraño
+
+**Soluciones**:
+1. Recarga la página
+2. Limpia la caché del navegador
+3. Verifica la consola del navegador para errores JavaScript
+
+## 📝 Preguntas de Medicina China Incluidas
+
+1. Los cinco elementos
+2. Concepto de Yin
+3. Meridianos principales
+4. Órgano asociado al elemento Madera
+5. Energía vital Qi
+6. Técnica de acupuntura
+7. Emoción del Corazón
+8. Órgano Yin del elemento Agua
+9. Práctica de Qi Gong
+10. Diagnóstico por pulso y lengua
+
+## 🚀 Próximas Mejoras
+
+- [ ] Categorías de preguntas
+- [ ] Dificultad variable
+- [ ] Modo multijugador
+- [ ] Estadísticas detalladas por jugador
+- [ ] Compartir resultados en redes sociales
+- [ ] Sonidos y efectos de audio
+- [ ] Modo oscuro
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y está disponible para uso educativo.
+
+## 👥 Contribuir
+
+Las contribuciones son bienvenidas:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📧 Contacto
+
+Para preguntas o sugerencias, abre un issue en el repositorio.
 
 ---
 
-¡Diviértete jugando y que consigas el mejor puntaje! 🐍🎮
+¡Diviértete jugando y aprendiendo sobre Medicina Tradicional China! 🏥🎮
