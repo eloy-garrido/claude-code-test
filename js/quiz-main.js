@@ -51,27 +51,22 @@ const elements = {
  * Inicializa la aplicación
  */
 async function init() {
-    // Verificar conexión con Supabase
+    // Verificar conexión con la base de datos
     const connection = await checkConnection();
 
     if (connection.success) {
-        elements.connectionStatus.innerHTML = `
-            <div style="color: var(--success); font-size: 1.2rem;">✓</div>
-            <span style="color: var(--success);">${connection.message}</span>
-        `;
-
-        // Mostrar formulario de login después de 1 segundo
+        // Ocultar spinner y mostrar formulario
         setTimeout(() => {
             elements.loginForm.style.display = 'block';
             elements.connectionStatus.style.display = 'none';
-        }, 1000);
+        }, 800);
 
     } else {
         elements.connectionStatus.innerHTML = `
             <div style="color: var(--danger); font-size: 1.2rem;">✗</div>
-            <span style="color: var(--danger);">${connection.message}</span>
+            <span style="color: var(--danger);">Error de conexión. Por favor, intenta más tarde.</span>
         `;
-        showToast('Error de conexión con Supabase', 'error');
+        showToast('Error de conexión', 'error');
     }
 
     // Configurar event listeners
@@ -182,25 +177,71 @@ async function showAdminPanel() {
 async function showRanking() {
     switchScreen('rankingScreen');
 
+    const podiumContainer = document.getElementById('podiumContainer');
+    const rankingRestSection = document.getElementById('rankingRestSection');
+    const rankingListFull = elements.rankingListFull;
+
+    podiumContainer.innerHTML = '';
+    rankingListFull.innerHTML = '';
+
     try {
         const ranking = await getRanking();
-        elements.rankingListFull.innerHTML = '';
 
         if (ranking.length === 0) {
-            elements.rankingListFull.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">No hay jugadores en el ranking todavía. ¡Sé el primero!</p>';
-        } else {
-            ranking.forEach((entry, index) => {
+            podiumContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px; width: 100%;">No hay jugadores en el ranking todavía. ¡Sé el primero!</p>';
+            rankingRestSection.style.display = 'none';
+            return;
+        }
+
+        // Top 3 en el podio
+        const top3 = ranking.slice(0, 3);
+        const rest = ranking.slice(3);
+
+        // Renderizar podio
+        top3.forEach((entry, index) => {
+            const place = document.createElement('div');
+            const positions = ['first', 'second', 'third'];
+            const medals = ['🥇', '🥈', '🥉'];
+
+            place.className = `podium-place ${positions[index]}`;
+
+            const date = new Date(entry.created_at);
+            const dateStr = date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            place.innerHTML = `
+                <div class="podium-avatar">
+                    ${index === 0 ? '<div class="podium-crown">👑</div>' : ''}
+                    ${medals[index]}
+                </div>
+                <div class="podium-base">
+                    <div class="podium-name" title="${entry.player_name}">${entry.player_name}</div>
+                    <div class="podium-score">${entry.score} pts</div>
+                    <div class="podium-details">
+                        ${entry.correct_answers}/${entry.questions_answered} correctas
+                    </div>
+                    <div class="podium-details" style="margin-top: 3px;">
+                        ${dateStr}
+                    </div>
+                </div>
+            `;
+
+            podiumContainer.appendChild(place);
+        });
+
+        // Renderizar el resto
+        if (rest.length > 0) {
+            rankingRestSection.style.display = 'block';
+
+            rest.forEach((entry, index) => {
                 const item = document.createElement('div');
                 item.className = 'ranking-item';
 
-                // Medallas para los primeros 3
-                let medal = '';
-                if (index === 0) medal = '🥇';
-                else if (index === 1) medal = '🥈';
-                else if (index === 2) medal = '🥉';
-                else medal = `${index + 1}.`;
+                const position = index + 4; // Empieza desde el 4to lugar
 
-                // Fecha de la jugada
                 const date = new Date(entry.created_at);
                 const dateStr = date.toLocaleDateString('es-ES', {
                     day: '2-digit',
@@ -209,7 +250,7 @@ async function showRanking() {
                 });
 
                 item.innerHTML = `
-                    <span class="ranking-position">${medal}</span>
+                    <span class="ranking-position">${position}.</span>
                     <div style="flex: 1;">
                         <div class="ranking-name">${entry.player_name}</div>
                         <div style="font-size: 0.85rem; color: var(--text-light);">
@@ -219,12 +260,16 @@ async function showRanking() {
                     <span class="ranking-score">${entry.score} pts</span>
                 `;
 
-                elements.rankingListFull.appendChild(item);
+                rankingListFull.appendChild(item);
             });
+        } else {
+            rankingRestSection.style.display = 'none';
         }
+
     } catch (error) {
         console.error('Error al cargar ranking:', error);
-        elements.rankingListFull.innerHTML = '<p style="text-align: center; color: var(--danger); padding: 40px;">Error al cargar el ranking</p>';
+        podiumContainer.innerHTML = '<p style="text-align: center; color: var(--danger); padding: 40px; width: 100%;">Error al cargar el ranking</p>';
+        rankingRestSection.style.display = 'none';
     }
 }
 

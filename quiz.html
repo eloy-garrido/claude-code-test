@@ -22,7 +22,7 @@
                 <div class="card-body">
                     <div class="connection-status" id="connectionStatus">
                         <div class="spinner"></div>
-                        <span>Verificando conexión...</span>
+                        <span>Cargando...</span>
                     </div>
                     <div id="loginForm" style="display: none;">
                         <div class="form-group">
@@ -50,9 +50,19 @@
                     <p class="subtitle">Los mejores jugadores de todos los tiempos</p>
                 </div>
                 <div class="card-body">
-                    <div class="ranking-list-full" id="rankingListFull">
-                        <!-- El ranking se genera dinámicamente -->
+                    <!-- Podio Top 3 -->
+                    <div class="podium-container" id="podiumContainer">
+                        <!-- El podio se genera dinámicamente -->
                     </div>
+
+                    <!-- Resto del Ranking -->
+                    <div class="ranking-section" id="rankingRestSection" style="display: none;">
+                        <h3 style="text-align: center; margin: 30px 0 20px; color: var(--text-dark);">Otros Jugadores</h3>
+                        <div class="ranking-list-full" id="rankingListFull">
+                            <!-- El ranking se genera dinámicamente -->
+                        </div>
+                    </div>
+
                     <div style="text-align: center; margin-top: 30px;">
                         <button class="btn btn-primary" id="backToLoginBtn">⬅️ Volver al Inicio</button>
                     </div>
