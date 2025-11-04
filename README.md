@@ -1,217 +1,145 @@
-# Snake Game - Juego de la Serpiente
+# 🏥 Quiz de Medicina China
 
-Un juego clásico de Snake con gráficos modernos, sistema de vidas, puntaje y ranking. Desarrollado con arquitectura modular y buenas prácticas de JavaScript.
+Un juego interactivo de preguntas y respuestas sobre Medicina Tradicional China con sistema de ranking global, panel de administración y efectos de sonido.
 
-## Características
+## 🎯 Características Principales
 
-- **Gráficos atractivos**: Diseño moderno con gradientes, sombras y animaciones
-- **Efectos de sonido**: Audio inmersivo con Tone.js para cada acción del juego
-- **Sistema de 3 vidas**: Tienes 3 oportunidades antes de que termine el juego
-- **Sistema de puntaje**: Gana 10 puntos por cada manzana que comas
-- **Ranking persistente**: Los mejores puntajes se guardan y se muestran en un top 10
-- **Dificultad progresiva**: El juego se vuelve más rápido a medida que subes tu puntaje
-- **Interfaz intuitiva**: Controles simples con las flechas del teclado
-- **Código modular**: Arquitectura organizada en módulos ES6
+### 🎮 Sistema de Juego
+- **10 preguntas aleatorias** por partida
+- **Sistema de puntuación dinámico**: hasta 10 puntos por pregunta según velocidad de respuesta
+- **Temporizador inteligente**: tiempo base de 15 segundos + tiempo extra según longitud de la pregunta
+- **3 segundos de gracia** para leer la pregunta sin penalización de tiempo
+- **Sonidos envolventes** para respuestas correctas, incorrectas y eventos del juego
 
-## Estructura del Proyecto
+### 🏆 Sistema de Ranking
+- **Ranking global persistente** con los mejores jugadores
+- **Podio visual** para los top 3 jugadores
+- **Visualización completa** del ranking con todos los participantes
+- **Puntuaciones históricas** almacenadas en base de datos
+
+### 👨‍💻 Panel de Administrador
+- **Acceso especial** con el nombre "taiyangadm"
+- **CRUD completo** de preguntas (Crear, Leer, Actualizar, Eliminar)
+- **Gestión de visibilidad** de preguntas (ocultar/mostrar)
+- **Importación/Exportación** de preguntas en formato JSON
+- **Validación en tiempo real** de preguntas y respuestas
+
+### 📊 Características Técnicas
+- **Base de datos Supabase** para almacenamiento persistente
+- **Diseño responsivo** y moderno con CSS personalizado
+- **Sistema de sonido** con Tone.js para efectos de audio
+- **Sin dependencias pesadas** - implementación ligera y eficiente
+- **Interfaz intuitiva** con transiciones suaves y animaciones
+
+## 🚀 Cómo Jugar
+
+1. **Acceso al Juego**: Ingresa tu nombre en la pantalla de inicio
+2. **Modo Administrador**: Usa "taiyangadm" para acceder al panel de administración
+3. **Comenzar Partida**: El sistema cargará 10 preguntas aleatorias sobre Medicina China
+4. **Responder Preguntas**: 
+   - Selecciona la respuesta correcta antes de que se acabe el tiempo
+   - Cuanto más rápido respondas, más puntos obtendrás
+   - Las respuestas correctas se destacan en verde, las incorrectas en rojo
+5. **Ver Resultados**: Al finalizar, verás tu puntuación y posición en el ranking global
+6. **Volver a Jugar**: Puedes jugar nuevamente para mejorar tu puntuación
+
+## 📋 Estructura del Proyecto
 
 ```
-snake-game/
-├── index.html              # Página principal del juego
+quiz-medicina-china/
+├── index.html              # Página principal con todas las pantallas
 ├── css/
-│   └── styles.css         # Estilos y diseño visual
+│   ├── quiz-styles.css    # Estilos principales del juego
+│   └── styles.css         # Estilos adicionales
 ├── js/
-│   ├── main.js            # Punto de entrada de la aplicación
-│   ├── game.js            # Lógica principal del juego
-│   ├── config.js          # Configuración y constantes
-│   ├── ranking.js         # Sistema de ranking y localStorage
-│   ├── ui.js              # Gestión de interfaz de usuario
-│   └── sound.js           # Sistema de efectos de sonido
-└── README.md              # Documentación
+│   ├── quiz-game.js       # Lógica principal del juego
+│   ├── quiz-admin.js      # Panel de administrador
+│   ├── quiz-supabase.js   # Conexión con base de datos
+│   ├── quiz-sound.js      # Gestión de sonidos
+│   ├── quiz-utils.js      # Utilidades y validaciones
+│   ├── quiz-main.js       # Punto de entrada y navegación
+│   └── ...                # Otros módulos auxiliares
+└── README.md             # Este archivo
 ```
 
-### Descripción de archivos
+## 🎨 Pantallas del Juego
 
-#### `index.html`
-Estructura HTML del juego con elementos del DOM para el canvas, modales y controles.
+### 🏠 Pantalla de Inicio
+- Campo para ingresar nombre del jugador
+- Acceso al ranking global
+- Indicador de conexión con la base de datos
 
-#### `css/styles.css`
-Estilos completos del juego incluyendo:
-- Diseño responsive
-- Gradientes y animaciones
-- Estilos de modales y ranking
-- Efectos hover y transiciones
+### 🎮 Pantalla de Juego
+- Información del jugador y rol (administrador/jugador)
+- Contador de preguntas y puntuación actual
+- Pregunta con temporizador visual
+- Opciones de respuesta (2-3 opciones)
+- Barra de tiempo con cambio de colores
 
-#### `js/main.js`
-Punto de entrada que inicializa el juego cuando el DOM está listo.
+### 🏆 Pantalla de Resultados
+- Puntuación final obtenida
+- Detalle de respuestas correctas
+- Ranking global con posición actual
+- Opciones para jugar de nuevo o acceder al panel admin
 
-#### `js/config.js`
-Archivo de configuración centralizada con:
-- Dimensiones del canvas y grid
-- Velocidades del juego
-- Puntuación y vidas
-- Paleta de colores
-- Tamaños de elementos
+### ⚙️ Panel de Administrador
+- Formulario para crear/editar preguntas
+- Lista de preguntas existentes con opciones de edición
+- Botones para importar/exportar preguntas
+- Toggle para mostrar preguntas visibles/ocultas
 
-#### `js/game.js`
-Clase principal `SnakeGame` que contiene:
-- Lógica del juego (movimiento, colisiones, puntuación)
-- Renderizado del canvas (serpiente, comida, grid)
-- Gestión del estado del juego
-- Manejo de eventos del teclado
+## 📊 Formato de Preguntas
 
-#### `js/ranking.js`
-Clase `RankingManager` para:
-- Guardar y recuperar puntajes
-- Gestión de localStorage
-- Ordenamiento y filtrado del top 10
-- Validación de posiciones
+Las preguntas siguen este formato JSON:
 
-#### `js/ui.js`
-Clase `UIManager` que maneja:
-- Referencias a elementos del DOM
-- Actualización de displays (puntaje, vidas, nombre)
-- Gestión de modales
-- Visualización del ranking
-- Interacciones de UI
-
-#### `js/sound.js`
-Clase `SoundManager` para efectos de sonido:
-- Síntesis de audio con Tone.js
-- Sonido al comer manzanas
-- Sonido al perder vidas
-- Sonido de game over
-- Sonido de inicio del juego
-- Sonido al aumentar velocidad
-- Control de silencio/activación
-
-## Efectos de Sonido
-
-El juego incluye un sistema completo de audio usando **Tone.js**:
-
-- **🍎 Comer manzana**: Secuencia ascendente alegre (C5 → E5)
-- **💔 Perder vida**: Secuencia descendente (E4 → C4 → A3)
-- **☠️ Game Over**: Melodía dramática de 5 notas
-- **🎮 Inicio**: Arpeggio energético ascendente (C4 → E4 → G4)
-- **⚡ Aumento de velocidad**: Arpeggio rápido hacia C6
-
-### Control de Audio
-- Botón **🔊 Sonido** para activar/desactivar efectos
-- El audio se inicializa automáticamente al empezar el juego
-- Cumple con las políticas de autoplay de navegadores modernos
-
-## Cómo jugar
-
-1. Abre el archivo `index.html` en tu navegador web
-2. Ingresa tu nombre cuando se te solicite
-3. Haz clic en "Comenzar" o "Iniciar Juego"
-4. Controla la serpiente con el teclado:
-   - **Flechas del teclado:**
-     - ⬆️ Flecha arriba: Mover hacia arriba
-     - ⬇️ Flecha abajo: Mover hacia abajo
-     - ⬅️ Flecha izquierda: Mover hacia la izquierda
-     - ➡️ Flecha derecha: Mover hacia la derecha
-   - **Teclas WASD:**
-     - W: Mover hacia arriba
-     - S: Mover hacia abajo
-     - A: Mover hacia la izquierda
-     - D: Mover hacia la derecha
-5. Come las manzanas rojas para crecer y ganar puntos
-6. Evita chocar con las paredes o con tu propio cuerpo
-
-## Objetivo
-
-Obtén el puntaje más alto posible comiendo manzanas. Cada manzana vale 10 puntos. Tienes 3 vidas, así que puedes cometer errores, pero cada colisión te costará una vida.
-
-## Sistema de ranking
-
-El juego guarda automáticamente los 10 mejores puntajes en el almacenamiento local de tu navegador. Al terminar una partida, verás el ranking completo con medallas para los 3 primeros lugares:
-
-- 🥇 Primer lugar
-- 🥈 Segundo lugar
-- 🥉 Tercer lugar
-
-## Tecnologías utilizadas
-
-- **HTML5 Canvas**: Para renderizado de gráficos 2D
-- **CSS3**: Diseño moderno con gradientes, flexbox y animaciones
-- **JavaScript ES6+**: Módulos, clases, arrow functions
-- **Tone.js**: Síntesis de audio y efectos de sonido (CDN v14.8.49)
-- **LocalStorage API**: Persistencia de datos del ranking
-
-## Instalación
-
-No requiere instalación ni dependencias. Simplemente abre el archivo `index.html` en cualquier navegador web moderno.
-
-### Servidor local (opcional)
-
-Si prefieres usar un servidor local:
-
-```bash
-# Con Python 3
-python -m http.server 8000
-
-# Con Node.js (npx)
-npx serve
-
-# Con PHP
-php -S localhost:8000
+```json
+{
+  "version": "1.0",
+  "exportDate": "2025-01-04T12:00:00.000Z",
+  "totalQuestions": 5,
+  "questions": [
+    {
+      "question_text": "¿Cuál es uno de los cinco elementos en la Medicina Tradicional China?",
+      "answers": ["Fuego", "Hierro", "Cristal"],
+      "correct_answer": 0
+    }
+  ]
+}
 ```
 
-Luego abre `http://localhost:8000` en tu navegador.
+## 🔧 Tecnologías Utilizadas
 
-## Compatibilidad
+- **HTML5**: Estructura y semántica
+- **CSS3**: Estilos modernos con variables CSS y animaciones
+- **JavaScript ES6+**: Lógica del juego con clases y módulos
+- **Supabase**: Base de datos en la nube para persistencia de datos
+- **Tone.js**: Biblioteca de audio para efectos de sonido
 
-El juego es compatible con todos los navegadores modernos que soporten:
-- HTML5 Canvas
-- ES6 Modules
-- LocalStorage
+## 🎯 Temas de Medicina China
 
-Navegadores probados:
-- Chrome 60+
-- Firefox 60+
-- Safari 12+
-- Edge 79+
+El juego incluye preguntas sobre:
+- 🌿 **Teoría de los Cinco Elementos** (Madera, Fuego, Tierra, Metal, Agua)
+- ☯️ **Concepto de Yin-Yang** y equilibrio energético
+- 🧭 **Meridianos y Canales** energéticos del cuerpo
+- 🏥 **Órganos y Vísceras** y sus correspondencias
+- ⚡ **Qi (Chi)** - energía vital y su flujo
+- 🌡️ **Principios de Diagnóstico** y patrón de síndromes
 
-## Personalización
+## 📱 Compatibilidad
 
-Puedes personalizar el juego modificando `js/config.js`:
+- ✅ **Navegadores modernos** (Chrome, Firefox, Safari, Edge)
+- ✅ **Dispositivos móviles** y tablets
+- ✅ **Diseño responsivo** que se adapta a diferentes tamaños
+- ✅ **Sin instalación** requerida - juega directamente en el navegador
 
-```javascript
-export const CONFIG = {
-    CANVAS_WIDTH: 600,        // Ancho del canvas
-    CANVAS_HEIGHT: 600,       // Alto del canvas
-    GRID_SIZE: 20,            // Tamaño de cada celda
-    INITIAL_SPEED: 100,       // Velocidad inicial (ms)
-    POINTS_PER_FOOD: 10,      // Puntos por manzana
-    INITIAL_LIVES: 3,         // Número de vidas
-    // ... más opciones
-};
-```
+## 🎵 Efectos de Sonido
 
-## Desarrollo
-
-### Arquitectura
-
-El proyecto sigue principios de:
-- **Separación de responsabilidades**: Cada módulo tiene una función específica
-- **Encapsulación**: Uso de clases para agrupar lógica relacionada
-- **Modularidad**: Código dividido en módulos reutilizables
-- **Configuración centralizada**: Constantes en un solo lugar
-
-### Flujo de la aplicación
-
-1. `main.js` inicializa el juego
-2. `SnakeGame` crea instancias de `RankingManager` y `UIManager`
-3. Se configura el estado inicial desde `config.js`
-4. Se establecen event listeners
-5. El loop del juego actualiza y renderiza cada frame
-6. Los puntajes se guardan en `RankingManager` al terminar
-
-## Licencia
-
-Este proyecto es de código abierto y está disponible para uso educativo y personal.
+El juego incluye efectos de sonido para:
+- **Inicio de partida**: Sonido energizante
+- **Respuesta correcta**: Tono positivo y satisfactorio
+- **Respuesta incorrecta**: Tono suave de error
+- **Fin del juego**: Melodía de celebración
 
 ---
 
-¡Diviértete jugando y que consigas el mejor puntaje! 🐍🎮
+¡Prepárate para poner a prueba tus conocimientos sobre la Medicina Tradicional China y compite por el primer lugar en el ranking global! 🏆
