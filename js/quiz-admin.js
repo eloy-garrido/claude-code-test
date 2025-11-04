@@ -20,7 +20,10 @@ export class AdminPanel {
             saveBtn: document.getElementById('saveQuestionBtn'),
             cancelBtn: document.getElementById('cancelEditBtn'),
             questionsList: document.getElementById('questionsList'),
-            questionCount: document.getElementById('questionCount')
+            questionCount: document.getElementById('questionCount'),
+            exportBtn: document.getElementById('exportQuestionsBtn'),
+            importBtn: document.getElementById('importQuestionsBtn'),
+            importFileInput: document.getElementById('importFileInput')
         };
 
         this.setupEventListeners();
@@ -44,6 +47,21 @@ export class AdminPanel {
         // Botón cancelar edición
         this.elements.cancelBtn.addEventListener('click', () => {
             this.cancelEdit();
+        });
+
+        // Botón exportar
+        this.elements.exportBtn.addEventListener('click', () => {
+            this.exportQuestions();
+        });
+
+        // Botón importar
+        this.elements.importBtn.addEventListener('click', () => {
+            this.elements.importFileInput.click();
+        });
+
+        // Input de archivo
+        this.elements.importFileInput.addEventListener('change', (e) => {
+            this.importQuestions(e);
         });
     }
 
@@ -286,5 +304,195 @@ export class AdminPanel {
                 </label>
             </div>
         `;
+    }
+
+    /**
+     * Exporta todas las preguntas a un archivo JSON
+     */
+    async exportQuestions() {
+        try {
+            // Obtener todas las preguntas
+            const questions = await getAllQuestions();
+
+            if (questions.length === 0) {
+                showToast('No hay preguntas para exportar', 'warning');
+                return;
+            }
+
+            // Formatear preguntas para exportación
+            const exportData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                totalQuestions: questions.length,
+                questions: questions.map(q => ({
+                    question_text: q.question_text,
+                    answers: q.answers,
+                    correct_answer: q.correct_answer
+                }))
+            };
+
+            // Convertir a JSON
+            const jsonString = JSON.stringify(exportData, null, 2);
+
+            // Crear blob y descargar
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            // Nombre del archivo con fecha
+            const fecha = new Date().toISOString().split('T')[0];
+            link.download = `preguntas-medicina-china-${fecha}.json`;
+            link.href = url;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(url);
+
+            showToast(`${questions.length} preguntas exportadas correctamente`, 'success');
+        } catch (error) {
+            console.error('Error al exportar preguntas:', error);
+            showToast('Error al exportar preguntas: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * Importa preguntas desde un archivo JSON
+     */
+    async importQuestions(event) {
+        const file = event.target.files[0];
+
+        if (!file) return;
+
+        // Resetear el input para permitir seleccionar el mismo archivo de nuevo
+        event.target.value = '';
+
+        try {
+            // Leer el archivo
+            const fileContent = await this.readFileAsText(file);
+
+            // Parsear JSON
+            let importData;
+            try {
+                importData = JSON.parse(fileContent);
+            } catch (e) {
+                throw new Error('El archivo no tiene un formato JSON válido');
+            }
+
+            // Validar estructura
+            const validation = this.validateImportData(importData);
+            if (!validation.valid) {
+                throw new Error(validation.error);
+            }
+
+            // Confirmar importación
+            const questionsToImport = importData.questions.length;
+            const confirmMsg = `¿Deseas importar ${questionsToImport} pregunta${questionsToImport !== 1 ? 's' : ''}?\n\nEsto agregará las preguntas a la base de datos (no eliminará las existentes).`;
+
+            if (!confirm(confirmMsg)) {
+                showToast('Importación cancelada', 'warning');
+                return;
+            }
+
+            // Importar preguntas
+            let imported = 0;
+            let errors = 0;
+
+            for (const question of importData.questions) {
+                try {
+                    await createQuestion({
+                        questionText: question.question_text,
+                        answers: question.answers,
+                        correctAnswer: question.correct_answer
+                    });
+                    imported++;
+                } catch (error) {
+                    console.error('Error al importar pregunta:', error);
+                    errors++;
+                }
+            }
+
+            // Mostrar resultado
+            if (errors === 0) {
+                showToast(`${imported} pregunta${imported !== 1 ? 's' : ''} importada${imported !== 1 ? 's' : ''} correctamente`, 'success');
+            } else {
+                showToast(`${imported} importadas, ${errors} con errores`, 'warning');
+            }
+
+            // Recargar lista
+            await this.loadQuestions();
+
+        } catch (error) {
+            console.error('Error al importar preguntas:', error);
+            showToast('Error al importar: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * Lee un archivo como texto
+     */
+    readFileAsText(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(new Error('Error al leer el archivo'));
+            reader.readAsText(file);
+        });
+    }
+
+    /**
+     * Valida los datos importados
+     */
+    validateImportData(data) {
+        // Verificar que sea un objeto
+        if (!data || typeof data !== 'object') {
+            return { valid: false, error: 'El archivo no contiene un objeto JSON válido' };
+        }
+
+        // Verificar que tenga el array de preguntas
+        if (!Array.isArray(data.questions)) {
+            return { valid: false, error: 'El archivo debe contener un array "questions"' };
+        }
+
+        // Verificar que haya al menos una pregunta
+        if (data.questions.length === 0) {
+            return { valid: false, error: 'El archivo no contiene preguntas' };
+        }
+
+        // Validar cada pregunta
+        for (let i = 0; i < data.questions.length; i++) {
+            const q = data.questions[i];
+
+            // Verificar campos requeridos
+            if (!q.question_text || typeof q.question_text !== 'string') {
+                return { valid: false, error: `Pregunta ${i + 1}: falta o es inválido "question_text"` };
+            }
+
+            if (!Array.isArray(q.answers)) {
+                return { valid: false, error: `Pregunta ${i + 1}: "answers" debe ser un array` };
+            }
+
+            if (q.answers.length < 2 || q.answers.length > 3) {
+                return { valid: false, error: `Pregunta ${i + 1}: debe tener entre 2 y 3 respuestas` };
+            }
+
+            if (typeof q.correct_answer !== 'number') {
+                return { valid: false, error: `Pregunta ${i + 1}: "correct_answer" debe ser un número` };
+            }
+
+            if (q.correct_answer < 0 || q.correct_answer >= q.answers.length) {
+                return { valid: false, error: `Pregunta ${i + 1}: "correct_answer" fuera de rango` };
+            }
+
+            // Verificar que todas las respuestas sean strings
+            for (let j = 0; j < q.answers.length; j++) {
+                if (typeof q.answers[j] !== 'string' || q.answers[j].trim() === '') {
+                    return { valid: false, error: `Pregunta ${i + 1}, respuesta ${j + 1}: debe ser un texto válido` };
+                }
+            }
+        }
+
+        return { valid: true };
     }
 }

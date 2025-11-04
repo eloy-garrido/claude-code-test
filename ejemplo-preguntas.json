@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "exportDate": "2025-01-04T12:00:00.000Z",
+  "totalQuestions": 5,
+  "questions": [
+    {
+      "question_text": "¿Cuál es uno de los cinco elementos en la Medicina Tradicional China?",
+      "answers": [
+        "Fuego",
+        "Hierro",
+        "Cristal"
+      ],
+      "correct_answer": 0
+    },
+    {
+      "question_text": "¿Qué significa el concepto de Yin en la Medicina China?",
+      "answers": [
+        "Energía activa y caliente",
+        "Energía pasiva y fría"
+      ],
+      "correct_answer": 1
+    },
+    {
+      "question_text": "¿Cuántos meridianos principales existen en el cuerpo según la Medicina China?",
+      "answers": [
+        "12 meridianos",
+        "8 meridianos",
+        "24 meridianos"
+      ],
+      "correct_answer": 0
+    },
+    {
+      "question_text": "¿Qué órgano se asocia con el elemento Madera en la teoría de los cinco elementos?",
+      "answers": [
+        "Corazón",
+        "Hígado"
+      ],
+      "correct_answer": 1
+    },
+    {
+      "question_text": "¿Cuál es la energía vital que fluye por los meridianos del cuerpo?",
+      "answers": [
+        "Qi (Chi)",
+        "Prana",
+        "Kundalini"
+      ],
+      "correct_answer": 0
+    }
+  ]
+}
